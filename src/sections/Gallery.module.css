@@ -1,0 +1,314 @@
+.section{
+  position: relative;
+  background: rgb(var(--bg));
+  color: rgb(var(--ink));
+  overflow: clip;
+
+  /* 上：助走（広いまま） */
+  padding-top: clamp(240px, 28vh, 420px);
+
+  /* 下：巨大余白で誤魔化さない（ここが勝ち） */
+  padding-bottom: clamp(140px, 16vh, 260px);
+}
+@supports not (overflow: clip){
+  .section{ overflow: hidden; }
+}
+
+/* ピークの膜（うるさくしない） */
+.section::before{
+  content:"";
+  position:absolute;
+  inset:0;
+  pointer-events:none;
+  z-index:0;
+  opacity:.72;
+  background:
+    radial-gradient(120% 90% at 52% 10%,
+      rgb(255 255 255 / .62) 0%,
+      rgb(255 255 255 / 0) 62%),
+    linear-gradient(to bottom,
+      rgb(0 0 0 / .04),
+      rgb(0 0 0 / 0) 56%);
+}
+
+.wrap{
+  --edge: clamp(8px, 1.8vw, 28px);
+
+  width: 100%;
+  max-width: none;
+  margin: 0;
+  padding: 0 var(--edge);
+
+  position: relative;
+  z-index: 1;
+}
+
+/* ステージ：3列グリッドで成立させる（paddingで支えない） */
+.stage{
+  position: relative;
+  display: grid;
+  grid-template-columns:
+    clamp(320px, 28vw, 470px)
+    clamp(400px, 33vw, 560px)
+    clamp(320px, 28vw, 470px);
+  column-gap: clamp(22px, 4vw, 96px);
+  justify-content: center;
+  align-items: start;
+
+  /* 縦オフセット（レイアウトに効く = marginで） */
+  --tA: clamp(0px, 4vh, 70px);
+  --tB: clamp(120px, 12vh, 240px);
+  --tC: clamp(320px, 26vh, 520px);
+}
+
+/* パネル共通 */
+.panel{
+  margin: 0;
+  border-radius: 0;
+  filter: drop-shadow(0 30px 70px rgb(0 0 0 / .14));
+  will-change: transform, opacity;
+  z-index: 2;
+}
+
+/* 左 */
+.panel[data-pos="a"]{
+  grid-column: 1;
+  margin-top: var(--tA);
+  height: clamp(640px, 56vw, 880px);
+  transform: translateX(-10px) rotate(-.18deg);
+}
+
+/* 中（主役） */
+.panel[data-pos="b"]{
+  grid-column: 2;
+  margin-top: var(--tB);
+  height: clamp(720px, 62vw, 980px);
+  transform: rotate(-.10deg);
+}
+
+/* 右 */
+.panel[data-pos="c"]{
+  grid-column: 3;
+  margin-top: var(--tC);
+  height: clamp(640px, 56vw, 880px);
+  transform: translateX(12px) rotate(.16deg);
+}
+
+/* 垂れ幕 */
+.mask{
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  background: rgb(var(--paper));
+  border: 1px solid rgb(var(--ink) / .10);
+  border-radius: 0;
+  will-change: clip-path;
+}
+
+.img{
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  will-change: transform;
+
+  /* 写真を少し静かに */
+  opacity: .93;
+  filter: saturate(.86) contrast(.96) brightness(1.04);
+}
+
+/* 説明（刻印） */
+.cap{
+  position: absolute;
+  left: 18px;
+  bottom: 16px;
+  max-width: min(34ch, calc(100% - 36px));
+  pointer-events: none;
+
+  background: linear-gradient(
+    to right,
+    rgb(var(--bg) / .92),
+    rgb(var(--bg) / .62) 72%,
+    transparent
+  );
+  padding: 10px 12px;
+}
+
+.capTop{
+  display: flex;
+  gap: 10px;
+  align-items: baseline;
+  margin-bottom: 8px;
+}
+
+.capNo{
+  font-family: var(--font-serif);
+  font-size: 14px;
+  letter-spacing: .12em;
+  color: rgb(var(--beni));
+}
+
+.capTime{
+  font-family: var(--font-sans);
+  font-size: 10px;
+  letter-spacing: .28em;
+  text-transform: uppercase;
+  opacity: .72;
+}
+
+/* tone text — “墨に混ぜる”前提（ベタ塗り禁止） */
+.toneText{
+  font-family: var(--font-sans);
+  font-size: 10px;
+  letter-spacing: .28em;
+  text-transform: uppercase;
+  opacity: .92;
+}
+
+/* フォールバック（color-mix非対応でも破綻しない） */
+.tone_beni{   color: rgb(var(--beni) / .72); }
+.tone_ai{     color: rgb(var(--ai) / .62); }
+.tone_kogane{ color: rgb(var(--kogane) / .66); }
+
+/* 対応環境だけ “墨に混ぜて上品化” */
+@supports (color: color-mix(in srgb, #000, #fff)){
+  .tone_beni{
+    color: color-mix(in srgb, rgb(var(--ink) / .88) 58%, rgb(var(--beni) / .92));
+  }
+  .tone_ai{
+    color: color-mix(in srgb, rgb(var(--ink) / .88) 62%, rgb(var(--ai) / .92));
+  }
+  .tone_kogane{
+    color: color-mix(in srgb, rgb(var(--ink) / .88) 60%, rgb(var(--kogane) / .92));
+  }
+}
+.capTitle{
+  font-family: var(--font-serif);
+  font-size: 14px;
+  letter-spacing: .10em;
+  line-height: 1.6;
+  opacity: .96;
+}
+
+.capNote{
+  margin-top: 8px;
+  font-family: var(--font-sans);
+  font-size: 11px;
+  letter-spacing: .08em;
+  opacity: .74;
+}
+
+/* 見出し（センター上） */
+.head{
+  position: absolute;
+  z-index: 3;
+  pointer-events: none;
+
+  left: 50%;
+  transform: translateX(-50%);
+
+  /* 上に刺す */
+  top: clamp(-210px, -14vh, -120px);
+
+  max-width: min(52ch, 52vw);
+  text-align: center;
+}
+
+.kicker{
+  font-family: var(--font-sans);
+  font-size: 10px;
+  letter-spacing: .34em;
+  text-transform: uppercase;
+  opacity: .56;
+}
+
+.title{
+  margin: 12px 0 0;
+  font-family: var(--font-serif);
+  font-size: clamp(28px, 2.4vw, 44px);
+  letter-spacing: .12em;
+  line-height: 1.18;
+
+  will-change: clip-path, transform; /* title clip 滑らか */
+}
+
+.beni{ color: rgb(var(--beni)); }
+
+.lead{
+  margin: 14px 0 0;
+  font-family: var(--font-sans);
+  font-size: 12px;
+  letter-spacing: .10em;
+  opacity: .72;
+}
+
+.hair{
+  margin: 18px auto 0;
+  width: min(320px, 24vw);
+  height: 1px;
+  background: rgb(var(--ink) / .10);
+
+  will-change: transform, opacity;
+  transform-origin: 0% 50%;
+}
+
+/* SPは別で作る前提でも、最低限の保険だけ残す */
+@media (max-width: 900px){
+  .stage{
+    grid-template-columns: 1fr;
+    row-gap: clamp(18px, 4vh, 44px);
+  }
+
+  .panel{
+    height: auto !important;
+    transform: none !important;
+  }
+
+  .mask{ aspect-ratio: 4 / 5; height: auto; }
+
+  .head{
+    position: relative;
+    left: auto;
+    top: auto;
+    transform: none;
+    margin: 0 0 clamp(16px, 3vh, 28px);
+    max-width: 64ch;
+    text-align: left;
+  }
+
+  .hair{
+    margin-left: 0;
+    margin-right: auto;
+  }
+}
+/* lead: 3 tones */
+.lead{
+  display: inline-flex;
+  gap: 12px;
+  align-items: baseline;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+/* 区切りは“空気” */
+.sep{
+  opacity: .28;
+}
+
+/* フォールバック（color-mix非対応でも破綻しない） */
+.tBeni{   color: rgb(var(--beni) / .78); }
+.tAi{     color: rgb(var(--ai, 22 49 74) / .72); }
+.tKogane{ color: rgb(var(--kogane, 168 139 43) / .74); }
+
+/* 対応環境だけ “墨に混ぜる”＝上品化 */
+@supports (color: color-mix(in srgb, #000, #fff)){
+  .tBeni{
+    color: color-mix(in srgb, rgb(var(--ink) / .92) 52%, rgb(var(--beni) / .90));
+  }
+  .tAi{
+    color: color-mix(in srgb, rgb(var(--ink) / .92) 58%, rgb(var(--ai, 22 49 74) / .92));
+  }
+  .tKogane{
+    color: color-mix(in srgb, rgb(var(--ink) / .92) 56%, rgb(var(--kogane, 168 139 43) / .92));
+  }
+}

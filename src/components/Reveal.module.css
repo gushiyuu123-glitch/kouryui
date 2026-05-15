@@ -1,0 +1,134 @@
+/* -----------------------------
+   RevealText
+   - 像が整う：opacityは速め / transformは長め
+------------------------------ */
+.text{
+  opacity: 0;
+  transform: translate3d(0, 18px, 0) scale(0.995);
+  filter: blur(.25px);
+  will-change: opacity, transform, filter;
+
+  transition:
+    opacity .62s var(--ease-out, cubic-bezier(.22, 1, .36, 1)),
+    transform 1.05s var(--ease-out, cubic-bezier(.22, 1, .36, 1)),
+    filter 1.05s var(--ease-out, cubic-bezier(.22, 1, .36, 1));
+  transition-delay: var(--d, 0s);
+}
+.text.in{
+  opacity: 1;
+  transform: translate3d(0,0,0) scale(1);
+  filter: blur(0px);
+}
+
+/* -----------------------------
+   RevealImage
+   - IO mode: CSSで
+   - GSAP mode: CSSは干渉しない
+------------------------------ */
+.image{
+  --reveal-bg: rgb(var(--bg, 248 246 242));
+
+  position: relative;
+  margin: 0;
+  width: 100%;
+  aspect-ratio: var(--ratio, 16/9);
+  overflow: hidden;
+
+  border-radius: 0;
+  filter: drop-shadow(0 26px 56px rgb(0 0 0 / .14));
+}
+
+/* IO mode initial */
+.image:not(.isGsap){
+  opacity: 0;
+  transform: translate3d(0, 18px, 0);
+  will-change: opacity, transform;
+
+  transition:
+    opacity .68s var(--ease-out, cubic-bezier(.22, 1, .36, 1)),
+    transform .86s var(--ease-out, cubic-bezier(.22, 1, .36, 1));
+  transition-delay: var(--d, 0s);
+}
+.image:not(.isGsap).in{
+  opacity: 1;
+  transform: translate3d(0,0,0);
+}
+
+/* GSAP mode: CSSが邪魔しない（事故防止） */
+.isGsap{
+  opacity: 1;
+  transform: none;
+  transition: none;
+}
+
+/* Wipe layer */
+.wipe{
+  position: absolute;
+  inset: -2px;
+  background: var(--reveal-bg);
+  transform: translateY(0);
+  z-index: 2;
+  pointer-events: none;
+}
+
+/* IO mode wipe */
+.image:not(.isGsap).in .wipe{
+  transform: translateY(-110%);
+  transition: transform 1.02s var(--ease-out, cubic-bezier(.22, 1, .36, 1));
+  transition-delay: calc(var(--d, 0s) + .12s);
+}
+
+/* Image itself */
+.img{
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  will-change: transform;
+}
+
+/* IO mode img motion */
+.image:not(.isGsap) .img{
+  transform: scale(1.08) translateY(10px);
+}
+.image:not(.isGsap).in .img{
+  transform: scale(1.02) translateY(0);
+  transition: transform 1.28s var(--ease-out, cubic-bezier(.22, 1, .36, 1));
+  transition-delay: calc(var(--d, 0s) + .10s);
+}
+
+/* GSAP mode: CSS transformは無効化（GSAP専用） */
+.isGsap .img,
+.isGsap .wipe{
+  transition: none;
+}
+
+/* subtle veil (共通) */
+.image::after{
+  content:"";
+  position:absolute;
+  inset:0;
+  pointer-events:none;
+  z-index:1;
+  opacity:.92;
+  background:
+    radial-gradient(120% 90% at 50% 12%,
+      rgb(255 255 255 / .10) 0%,
+      rgb(255 255 255 / 0) 56%),
+    linear-gradient(to bottom,
+      rgb(0 0 0 / .08),
+      rgb(0 0 0 / 0) 58%);
+}
+
+/* reduced motion */
+@media (prefers-reduced-motion: reduce){
+  .text,
+  .image{
+    opacity: 1 !important;
+    transform: none !important;
+    filter: none !important;
+    transition: none !important;
+  }
+  .wipe{ display:none; }
+  .img{ transform:none !important; transition:none !important; }
+}

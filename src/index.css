@@ -1,0 +1,252 @@
+/* globals.css — KOU RYUI base */
+:root{
+  /* =========================
+     Tone (paper / ink / beni)
+  ========================== */
+  color-scheme: light;
+
+  --bg:    250 248 244;  /* 温度だけ残す紙 */
+  --paper: 255 255 255;  /* 純白（膜/紙面用） */
+  --ink:   26 26 26;     /* 墨 */
+  --muted: 110 110 110;  /* 補助 */
+
+  --beni:  176 18 27;    /* #B0121B（紅） */
+  --line:  0 0 0;        /* 線は alpha で制御 */
+  --hair:  0 0 0;        /* 1px用（必要なら） */
+
+  /* =========================
+     Accent (role-based)
+     - ai   : 案内/リンク/状態
+     - kogane: 価値/価格/人気（数字だけ推奨）
+  ========================== */
+  --ai:     22 49 74;    /* 藍 */
+  --kogane: 168 139 43;  /* 黄金 */
+
+  /* “使う時の濃度”を固定（撒きすぎ防止） */
+  --ai-a: .72;
+  --kogane-a: .78;
+
+  /* =========================
+     Layout
+  ========================== */
+  --wrap:   1280px;
+  --gutter: clamp(22px, 4vw, 64px);
+  --vspace: clamp(72px, 8vh, 120px);
+
+  /* セクションの呼吸（各moduleで参照できる基準） */
+  --sec-top: clamp(110px, 12vh, 180px);
+  --sec-bot: clamp(96px, 10vh, 160px);
+
+  /* 罫線の基準（alphaは各所で調整しても“揺れない”） */
+  --a-line: .12;
+  --a-dash: .16;
+
+  /* shadow基準（紙面の格） */
+  --shadow-1: 0 18px 44px rgb(0 0 0 / .06);
+  --shadow-2: 0 22px 58px rgb(0 0 0 / .08);
+
+  /* =========================
+     Typography
+  ========================== */
+  --font-serif:
+    "Hiragino Mincho ProN",
+    "Yu Mincho",
+    "游明朝",
+    serif;
+
+  --font-sans:
+    system-ui,
+    -apple-system,
+    "Segoe UI",
+    "Hiragino Sans",
+    "Yu Gothic",
+    sans-serif;
+
+  /* =========================
+     Motion
+  ========================== */
+  --ease-out: cubic-bezier(.22, 1, .36, 1);
+
+  /* =========================
+     Scrollbar (paper / ink / beni)
+     - 普段：墨の気配
+     - hover：ほんのり紅
+     - active：紅が滲む
+  ========================== */
+  --sb-track: transparent;
+
+  /* ✅ 普段は墨（ここが思想に一致） */
+  --sb-thumb:        rgb(var(--ink) / .14);
+  --sb-thumb-hover:  rgb(var(--ink) / .18);
+  --sb-thumb-active: rgb(var(--beni) / .52);
+}
+
+/* color-mix 対応環境だけ、hoverを“墨→紅”で混ぜる */
+@supports (color: color-mix(in srgb, #000, #fff)){
+  :root{
+    --sb-thumb-hover: color-mix(
+      in srgb,
+      rgb(var(--ink) / .18) 70%,
+      rgb(var(--beni) / .28)
+    );
+  }
+}
+
+*,
+*::before,
+*::after{ box-sizing: border-box; }
+
+html, body{ height: 100%; }
+
+html{
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+
+  /* Firefox */
+  scrollbar-width: thin;
+  scrollbar-color: var(--sb-thumb) var(--sb-track);
+}
+
+body{
+  margin: 0;
+  min-height: 100%;
+  color: rgb(var(--ink));
+  background: rgb(var(--bg));
+
+  font-family: var(--font-serif);
+  line-height: 1.6;
+  letter-spacing: .02em;
+
+  font-kerning: normal;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+
+  /* 横スクロール事故を殺す（圧の押し出し構図の保険） */
+  overflow-x: clip;
+}
+@supports not (overflow: clip){
+  body{ overflow-x: hidden; }
+}
+
+/* rootは独立スタッキング（overlay事故防止） */
+#root{
+  min-height: 100%;
+  isolation: isolate;
+}
+
+/* selection：紅を薄く（主張しない） */
+::selection{
+  background: rgb(var(--beni) / .14);
+  color: rgb(var(--ink));
+}
+
+/* media */
+img, svg, video, canvas{
+  max-width: 100%;
+  display: block;
+}
+img{ height: auto; }
+
+/* hairline */
+hr{
+  border: 0;
+  height: 1px;
+  background: rgb(var(--line) / var(--a-line));
+  margin: 0;
+}
+
+/* links */
+a{
+  color: inherit;
+  text-decoration: none;
+}
+a:focus-visible{
+  outline: 2px solid rgb(var(--beni) / .42);
+  outline-offset: 4px;
+  border-radius: 2px;
+}
+
+/* forms */
+button, input, textarea, select{
+  font: inherit;
+  color: inherit;
+}
+button{
+  background: transparent;
+  border: 0;
+  padding: 0;
+  cursor: pointer;
+}
+button:disabled{ cursor: not-allowed; opacity: .6; }
+
+input, textarea, select{
+  background: transparent;
+  border-radius: 0;
+}
+textarea{ resize: vertical; }
+
+input:focus-visible,
+textarea:focus-visible,
+select:focus-visible,
+button:focus-visible{
+  outline: 2px solid rgb(var(--beni) / .28);
+  outline-offset: 3px;
+}
+
+/* WebKit (Chrome / Edge / Safari) */
+::-webkit-scrollbar{
+  width: 10px;
+  height: 10px;
+}
+::-webkit-scrollbar-track{
+  background: var(--sb-track);
+}
+::-webkit-scrollbar-thumb{
+  background: var(--sb-thumb);
+  border-radius: 999px;
+
+  /* “紙の上に浮いてる感” */
+  border: 3px solid rgb(var(--bg));
+}
+::-webkit-scrollbar-thumb:hover{
+  background: var(--sb-thumb-hover);
+}
+::-webkit-scrollbar-thumb:active{
+  background: var(--sb-thumb-active);
+}
+::-webkit-scrollbar-corner{
+  background: transparent;
+}
+
+/* reduced motion：CSS側だけ止める（GSAPはJS側の分岐で） */
+@media (prefers-reduced-motion: reduce){
+  html{ scroll-behavior: auto !important; }
+  *{
+    animation-duration: .001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: .001ms !important;
+  }
+}
+
+/* =========================
+   Accent utility (慎重運用)
+   - 使うのは “案内/状態/価格” に限定
+========================== */
+.cAi{ color: rgb(var(--ai) / var(--ai-a)); }
+.cKogane{ color: rgb(var(--kogane) / var(--kogane-a)); }
+
+/* “リンク風”にしたい時だけ使う（全リンクは染めない） */
+.uLinkAi{
+  color: rgb(var(--ai) / .76);
+  text-decoration: underline;
+  text-decoration-color: rgb(var(--ai) / .22);
+  text-underline-offset: 4px;
+}
+.uLinkAi:hover{
+  color: rgb(var(--ai) / .90);
+  text-decoration-color: rgb(var(--beni) / .28);
+}
+:root{
+  --kogane: 168 139 43; /* 例：今の cKogane と同系統 */
+}

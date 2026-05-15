@@ -1,0 +1,302 @@
+.section{
+  position: relative;
+  background: rgb(var(--bg, 250 248 244));
+  color: rgb(var(--ink, 26 26 26));
+  overflow: clip;
+}
+@supports not (overflow: clip){
+  .section{ overflow: hidden; }
+}
+
+/* 上の切れ目を"雲"で吸う（帯にしない） */
+.section::before{
+  content:"";
+  position:absolute;
+  left:0; right:0;
+  top:-1px;
+  height: clamp(180px, 18vh, 320px);
+  pointer-events:none;
+  z-index: 0;
+
+  background:
+    radial-gradient(1100px 420px at 50% -20%,
+      rgb(var(--beni) / .34) 0%,
+      rgb(var(--beni) / .16) 44%,
+      rgb(var(--beni) / 0) 78%),
+    radial-gradient(980px 420px at 18% -6%,
+      rgb(var(--beni) / .18) 0%,
+      rgb(var(--beni) / .10) 44%,
+      rgb(var(--beni) / 0) 80%),
+    radial-gradient(980px 420px at 82% -6%,
+      rgb(var(--beni) / .18) 0%,
+      rgb(var(--beni) / .10) 44%,
+      rgb(var(--beni) / 0) 80%),
+    linear-gradient(
+      to bottom,
+      rgb(var(--beni) / .18) 0%,
+      rgb(var(--beni) / .10) 42%,
+      rgb(var(--bg) / 0) 100%
+    );
+
+  filter: blur(10px);
+  opacity: .98;
+}
+
+/* 白い湿り（境界の硬さだけ殺す） */
+.section::after{
+  content:"";
+  position:absolute;
+  left:0; right:0;
+  top:0;
+  height: clamp(200px, 20vh, 360px);
+  pointer-events:none;
+  z-index: 0;
+
+  background:
+    radial-gradient(1200px 520px at 50% 0%,
+      rgb(255 255 255 / .32) 0%,
+      rgb(255 255 255 / .16) 48%,
+      rgb(255 255 255 / 0) 78%);
+  filter: blur(14px);
+  opacity: .72;
+}
+
+.wrap{
+  position: relative;
+  z-index: 1;
+
+  width: 100%;
+  max-width: var(--wrap, 1280px);
+  margin: 0 auto;
+
+  padding:
+    clamp(200px, 18vh, 280px)
+    var(--gutter, 24px)
+    clamp(96px, 10vh, 150px);
+
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(560px, 720px) minmax(0, 1fr);
+  gap: 44px;
+  align-items: start;
+}
+
+.right{
+  grid-column: 2;
+
+  position: relative;
+  width: min(560px, 100%);
+  justify-self: center;
+
+  padding: 22px 0 6px;
+  margin-top: clamp(24px, 4vh, 60px);
+
+  isolation: isolate;
+}
+
+/* 紙膜：カード化しない。湿度だけ */
+.right::before{
+  content:"";
+  position:absolute;
+  inset: -44px -46px -56px -46px;
+  pointer-events:none;
+  z-index: 0;
+
+  background:
+    radial-gradient(1000px 320px at 50% 0%,
+      rgb(var(--beni) / .14) 0%,
+      rgb(var(--beni) / .08) 46%,
+      rgb(var(--beni) / 0) 78%),
+
+    radial-gradient(980px 620px at 50% 30%,
+      rgb(255 255 255 / .56) 0%,
+      rgb(255 255 255 / .26) 52%,
+      rgb(255 255 255 / 0) 82%),
+
+    radial-gradient(130% 110% at 50% 22%,
+      rgb(255 255 255 / .18) 0%,
+      rgb(255 255 255 / .08) 46%,
+      rgb(255 255 255 / 0) 72%);
+
+  -webkit-mask-image:
+    radial-gradient(ellipse 78% 68% at 50% 36%,
+      #000 0%,
+      #000 48%,
+      transparent 82%);
+  mask-image:
+    radial-gradient(ellipse 78% 68% at 50% 36%,
+      #000 0%,
+      #000 48%,
+      transparent 82%);
+
+  opacity: .34; /* ここは固定（ブレさせない） */
+}
+
+.right > *{
+  position: relative;
+  z-index: 1;
+}
+
+/* =========================
+   LABEL（署名オブジェクト）
+========================= */
+.label{
+  margin: 0;
+  display: inline-grid;
+  grid-auto-flow: row;
+  gap: 8px;
+  align-items: start;
+  color: rgb(var(--ink));
+}
+
+/* EN：墨の気配 + 紅の罫線（1px） */
+.en{
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+
+  font-family: var(--font-sans);
+  font-size: 11px;
+  letter-spacing: .26em;
+  text-transform: uppercase;
+
+  color: rgb(var(--ink) / .56);
+  white-space: nowrap;
+}
+.en::after{
+  content:"";
+  width: 48px;
+  height: 1px;
+  background: rgb(var(--beni) / .62);
+  opacity: .92;
+}
+
+/* JP：読みやすさ優先で letter-spacing を詰める */
+.jp{
+  display: inline-flex;
+  align-items: baseline;
+  gap: 10px;
+
+  font-family: var(--font-serif);
+  font-size: 13px;
+  letter-spacing: .14em;
+  line-height: 1.2;
+
+  color: rgb(var(--ink) / .90);
+  white-space: nowrap;
+}
+.jp::before{
+  content:"";
+  width: 12px;
+  height: 12px;
+  border: 1px solid rgb(var(--beni) / .64);
+  background: rgb(var(--bg) / .45);
+  transform: rotate(-2deg) translateY(1px);
+  opacity: .92;
+  mix-blend-mode: multiply;
+}
+
+/* =========================
+   STATEMENTS
+========================= */
+.statements{ margin-top: 22px; }
+
+.line{
+  margin: 0;
+
+  font-family: var(--font-serif);
+  font-size: clamp(28px, 2.25vw, 32px);
+  line-height: 1.55;
+  letter-spacing: .03em;
+
+  color: rgb(var(--ink));
+  opacity: .96;
+
+  line-break: strict;
+}
+
+.keep{ white-space: nowrap; }
+
+/* "格"の行は少しだけ静かに */
+.indent{
+  padding-left: 1.25em;
+  opacity: .90;
+}
+
+.line + .line{ margin-top: 30px; }
+.line:nth-child(3){ margin-top: 40px; }
+
+.beni{ color: rgb(var(--beni)); }
+
+/* bridge：注釈として固定（細い縦線） */
+.bridge{
+  margin: 56px 0 0;
+
+  position: relative;
+  padding-left: 12px;
+
+  font-family: var(--font-sans);
+  font-size: 12.5px;
+  letter-spacing: .12em;
+
+  color: rgb(var(--ink));
+  opacity: .72;
+}
+.bridge::before{
+  content:"";
+  position:absolute;
+  left: 0;
+  top: .35em;
+  bottom: .35em;
+  width: 1px;
+  background: rgb(var(--line) / .14);
+}
+
+/* =========================
+   REVEAL（安定）
+========================= */
+.reveal{
+  opacity: 0;
+  transform: translate3d(0, 14px, 0) scale(0.998);
+  will-change: opacity, transform;
+
+  transition:
+    opacity .62s var(--ease-out, cubic-bezier(.22, 1, .36, 1)),
+    transform .62s var(--ease-out, cubic-bezier(.22, 1, .36, 1));
+  transition-delay: var(--d, 0s);
+}
+.in .reveal{
+  opacity: 1;
+  transform: translate3d(0, 0, 0) scale(1);
+}
+
+@media (prefers-reduced-motion: reduce){
+  .reveal{ opacity: 1; transform: none; transition: none; }
+}
+
+/* =========================
+   RESPONSIVE（1080px）
+========================= */
+@media (max-width: 1080px){
+  .wrap{
+    padding:
+      clamp(120px, 11vh, 170px)
+      var(--gutter, 22px)
+      clamp(88px, 9vh, 130px);
+
+    grid-template-columns: 1fr minmax(460px, 620px) 1fr;
+    gap: 28px;
+  }
+
+  .right{ width: min(460px, 100%); }
+
+  .right::before{
+    inset: -30px -26px -34px -26px;
+    opacity: .34;
+  }
+
+  .statements{ margin-top: 20px; }
+  .line + .line{ margin-top: 28px; }
+  .line:nth-child(3){ margin-top: 36px; }
+
+  .bridge{ margin-top: 48px; font-size: 12px; }
+}

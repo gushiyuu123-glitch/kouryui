@@ -1,0 +1,345 @@
+.hero{
+  position: relative;
+  min-height: 100svh;
+  overflow: clip;
+  background: rgb(var(--bg));
+
+  /* 圧のパラメータ */
+  --logoPushX: 52px;
+  --logoPushY: -16px;
+  --logoCut:  -44px;
+
+  /* コピーはロゴより弱く寄せる */
+  --copyPushX: 34px;
+  --copyDrop:  8px;
+}
+
+@supports not (overflow: clip){
+  .hero{ overflow: hidden; }
+}
+
+/* 背景：勝ち筋維持 */
+.bg{
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: 10% 52%;
+  filter: saturate(.98) contrast(1.02);
+  transform: translateZ(0);
+  will-change: opacity, transform, filter;
+}
+
+.grain{
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(900px 520px at 0% 0%, rgb(255 255 255 / .14) 0%, rgb(255 255 255 / 0) 58%),
+    radial-gradient(900px 520px at 100% 100%, rgb(0 0 0 / .06) 0%, rgb(0 0 0 / 0) 58%);
+  opacity: .85;
+}
+
+/* 右側の“読ませる膜”＝少し狭く＆少し薄く */
+.veil{
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(1060px 700px at 73% 36%,
+      rgb(255 255 255 / .52) 0%,
+      rgb(255 255 255 / .18) 50%,
+      rgb(255 255 255 / 0) 74%),
+    linear-gradient(to left,
+      rgb(var(--bg) / .86) 0%,
+      rgb(var(--bg) / .62) 22%,
+      rgb(var(--bg) / .24) 46%,
+      rgb(var(--bg) / 0) 66%);
+  opacity: .97;
+  will-change: opacity;
+}
+
+.wrap{
+  position: relative;
+  width: 100%;
+  margin: 0;
+  padding: 36px 64px 42px;
+}
+
+/* Header（ナビ + 注釈） */
+.headerRow{
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(520px, 680px);
+  gap: 44px;
+  align-items: start;
+  padding-top: 10px;
+}
+.headerRight{
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 28px;
+}
+.blank{ min-height: 1px; }
+
+.nav{
+  display: inline-flex;
+  align-items: center;
+  gap: 22px;
+  margin: 0;
+  font-family: system-ui, -apple-system, "Segoe UI", "Hiragino Sans", "Yu Gothic", sans-serif;
+  font-size: 12px;
+  letter-spacing: .12em;
+  color: rgb(var(--ink));
+  opacity: .88;
+  white-space: nowrap;
+}
+.nav a{
+  position: relative;
+  padding: 8px 0;
+  color: inherit;
+  text-decoration: none;
+}
+.nav a::after{
+  content:"";
+  position:absolute;
+  left:0; right:0; bottom:4px;
+  height:1px;
+  background: rgb(var(--line) / .18);
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform .28s ease;
+}
+.nav a:hover::after{ transform: scaleX(1); }
+
+/* ✅ focusは紅に統一（世界観の合図） */
+.nav a:focus-visible{
+  outline: 2px solid rgb(var(--beni) / .42);
+  outline-offset: 4px;
+  border-radius: 2px;
+}
+
+.cornerMeta{
+  display: grid;
+  gap: 6px;
+  text-align: right;
+  font-family: system-ui, -apple-system, "Segoe UI", "Hiragino Sans", "Yu Gothic", sans-serif;
+  font-size: 11px;
+  letter-spacing: .12em;
+  color: rgb(var(--muted));
+  opacity: .82;
+  white-space: nowrap;
+}
+.cornerMeta span{ padding: 0; }
+
+/* Stage */
+.stage{
+  margin-top: clamp(64px, 7vh, 92px);
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(520px, 680px);
+  gap: 44px;
+  align-items: start;
+}
+
+.right{
+  justify-self: end;
+  width: min(520px, 100%);
+  padding-top: clamp(22px, 3.6vh, 40px);
+}
+
+/* 圧の核：ロゴを右で“切る” */
+.logoFx{
+  --logo-mask: none;
+  position: relative;
+
+  /* blendが外に漏れないように */
+  isolation: isolate;
+
+  /* ロゴ少し小さく */
+  width: min(420px, 100%);
+
+  transform: translateX(var(--logoPushX)) translateY(var(--logoPushY));
+  margin-right: var(--logoCut);
+}
+
+.logo{
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  height: auto;
+  display: block;
+  user-select: none;
+  transform: translateZ(0);
+}
+
+/* 人間味：刷りムラ（“分身”じゃない、同位置の薄い粒） */
+.ink{
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  pointer-events: none;
+
+  background:
+    radial-gradient(900px 420px at 18% 20%, rgb(0 0 0 / .18) 0%, rgb(0 0 0 / 0) 58%),
+    radial-gradient(900px 420px at 86% 74%, rgb(0 0 0 / .12) 0%, rgb(0 0 0 / 0) 62%),
+    repeating-radial-gradient(circle at 32% 38%,
+      rgb(0 0 0 / .10) 0 1px,
+      rgb(0 0 0 / 0) 1px 4px);
+
+  /* “汚れ”に見えないギリギリ */
+  opacity: .085;
+  mix-blend-mode: multiply;
+  filter: blur(.65px);
+  transform: scale(1.002);
+
+  -webkit-mask-image: var(--logo-mask);
+  mask-image: var(--logo-mask);
+  -webkit-mask-repeat: no-repeat;
+  mask-repeat: no-repeat;
+  -webkit-mask-size: 100% 100%;
+  mask-size: 100% 100%;
+  -webkit-mask-position: center;
+  mask-position: center;
+}
+
+/* ロゴ形状でマスクして“ロゴにだけ”上から白ツヤ（screen）は残す */
+.logoFx::after{
+  content:"";
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  pointer-events: none;
+
+  background: linear-gradient(
+    to bottom,
+    rgb(255 255 255 / .54) 0%,
+    rgb(255 255 255 / .18) 32%,
+    rgb(255 255 255 / 0) 64%
+  );
+  opacity: .85;
+  mix-blend-mode: screen;
+
+  -webkit-mask-image: var(--logo-mask);
+  mask-image: var(--logo-mask);
+  -webkit-mask-repeat: no-repeat;
+  mask-repeat: no-repeat;
+  -webkit-mask-size: 100% 100%;
+  mask-size: 100% 100%;
+  -webkit-mask-position: center;
+  mask-position: center;
+}
+
+/* コピー塊（寄せ + 下げはここだけ） */
+.copyBlock{
+  transform: translateX(var(--copyPushX)) translateY(var(--copyDrop));
+  will-change: transform;
+}
+
+.lead{
+  margin: 12px 0 0;
+  font-size: 15px;
+  line-height: 1.95;
+  letter-spacing: .06em;
+  color: rgb(var(--ink));
+  opacity: .92;
+}
+
+.ctaRow{
+  margin-top: 18px;
+  display: flex;
+  gap: 18px;
+  align-items: center;
+  font-family: system-ui, -apple-system, "Segoe UI", "Hiragino Sans", "Yu Gothic", sans-serif;
+  letter-spacing: .12em;
+  font-size: 11px;
+}
+
+.cta{
+  position: relative;
+  padding: 10px 2px;
+  color: inherit;
+  text-decoration: none;
+}
+.cta::after{
+  content:"";
+  position:absolute;
+  left:0; right:0; bottom:6px;
+  height:1px;
+  background: rgb(var(--beni) / .85);
+}
+
+.sub{
+  opacity: .72;
+  color: inherit;
+  text-decoration: none;
+}
+
+.roman{
+  position: relative;
+  z-index: 1;
+  margin-top: 10px;
+  width: 100%;
+  text-align: center;
+
+  font-family: system-ui, -apple-system, "Segoe UI", "Hiragino Sans", "Yu Gothic", sans-serif;
+  font-size: 11.5px;
+  letter-spacing: .40em;
+  text-transform: uppercase;
+  color: rgb(var(--ink));
+  opacity: .46;
+  white-space: nowrap;
+}
+
+/* 1080付近の事故回避 */
+@media (max-width: 1080px){
+  .wrap{ padding: 32px 44px 38px; }
+
+  .headerRow{
+    grid-template-columns: 1fr minmax(460px, 620px);
+    gap: 28px;
+  }
+
+  .stage{
+    grid-template-columns: 1fr minmax(460px, 620px);
+    gap: 28px;
+    margin-top: clamp(56px, 6vh, 82px);
+  }
+
+  .right{ width: min(460px, 100%); }
+  .cornerMeta{ font-size: 10.5px; }
+
+  .hero{
+    --logoPushX: 28px;
+    --logoPushY: -10px;
+    --logoCut:  -18px;
+    --copyPushX: 18px;
+    --copyDrop:  5px;
+  }
+
+  .roman{
+    margin-top: 8px;
+    font-size: 10.5px;
+    opacity: .48;
+  }
+}
+/* Hero.module.css 追記：差し色は“空気”としてのみ */
+.grain{
+  /* 既存の background の先頭にこれを足す（上に重ねる） */
+  background:
+    radial-gradient(840px 520px at 14% 18%, rgb(var(--ai) / .06) 0%, transparent 62%),
+    radial-gradient(920px 620px at 88% 84%, rgb(var(--kogane) / .05) 0%, transparent 64%),
+    /* ↓ ここから下は既存のgrain背景をそのまま残す */
+    radial-gradient(900px 520px at 0% 0%, rgb(255 255 255 / .14) 0%, rgb(255 255 255 / 0) 58%),
+    radial-gradient(900px 520px at 100% 100%, rgb(0 0 0 / .06) 0%, rgb(0 0 0 / 0) 58%);
+}
+
+.subLead{
+  margin: 10px 0 0;
+  font-family: var(--font-sans, system-ui, -apple-system, "Segoe UI", "Hiragino Sans", "Yu Gothic", sans-serif);
+  font-size: 12.5px;
+  letter-spacing: .10em;
+  line-height: 1.85;
+  color: rgb(var(--ink) / .70);
+  opacity: .92;
+}

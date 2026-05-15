@@ -1,0 +1,447 @@
+/* src/sections/Access.module.css */
+
+.section{
+  position: relative;
+  background: rgb(var(--bg, 248 246 242));
+  color: rgb(var(--ink, 18 18 18));
+  overflow: clip;
+
+  padding-top: clamp(170px, 18vh, 300px);
+  padding-bottom: clamp(155px, 16vh, 270px);
+
+  --paperA: rgb(250 248 244);
+  --paperB: rgb(244 241 235);
+  --shadow: rgb(0 0 0 / .10);
+}
+
+@supports not (overflow: clip){
+  .section{ overflow: hidden; }
+}
+
+@media (max-width: 520px){
+  .section{
+    padding-top: clamp(132px, 14vh, 206px);
+    padding-bottom: clamp(118px, 12.5vh, 186px);
+  }
+}
+
+.section::before{
+  content:"";
+  position:absolute;
+  inset:0;
+  pointer-events:none;
+  z-index:0;
+  background:
+    radial-gradient(1200px 680px at 22% 20%, rgb(255 255 255 / .72) 0%, transparent 60%),
+    radial-gradient(980px 620px at 72% 34%, rgb(0 0 0 / .04) 0%, transparent 62%),
+    linear-gradient(180deg, var(--paperA) 0%, var(--paperB) 100%);
+}
+
+.section::after{
+  content:"";
+  position:absolute;
+  inset:-2px;
+  pointer-events:none;
+  z-index:0;
+  opacity:.055;
+  background:
+    repeating-linear-gradient(112deg, rgb(var(--ink, 18 18 18) / 1) 0 1px, transparent 1px 34px);
+  mask-image:
+    radial-gradient(1200px 560px at 46% 18%, #000 0%, #000 60%, transparent 92%);
+}
+
+.wrap{
+  position: relative;
+  z-index: 1;
+
+  width: 100%;
+  max-width: 1560px;
+  margin: 0 auto;
+
+  --edge: clamp(14px, 3vw, 64px);
+  padding: 0 var(--edge);
+
+  display: grid;
+  grid-template-columns: minmax(420px, 0.82fr) minmax(0, 1.18fr);
+  gap: clamp(26px, 3.6vw, 64px);
+  align-items: start;
+}
+
+.reveal{
+  opacity: 0;
+  transform: translate3d(0, 18px, 0) scale(0.995);
+  filter: blur(0.25px);
+  will-change: opacity, transform, filter;
+  transition:
+    opacity .62s var(--ease-out, cubic-bezier(.16,1,.3,1)),
+    transform 1.05s var(--ease-out, cubic-bezier(.16,1,.3,1)),
+    filter 1.05s var(--ease-out, cubic-bezier(.16,1,.3,1));
+  transition-delay: var(--d, 0s);
+}
+.in .reveal{
+  opacity: 1;
+  transform: translate3d(0,0,0) scale(1);
+  filter: blur(0px);
+}
+@media (prefers-reduced-motion: reduce){
+  .reveal{ transition:none; opacity:1; transform:none; filter:none; }
+}
+
+/* left */
+.left{ min-width: 0; padding-left: clamp(8px, 1.1vw, 18px); }
+.head{ margin: 0 0 clamp(18px, 2.6vh, 28px); }
+
+.kicker{
+  font-family: var(--font-sans, system-ui, -apple-system, "Segoe UI", sans-serif);
+  font-size: 11px;
+  letter-spacing: .26em;
+  text-transform: uppercase;
+  color: rgb(var(--beni, 176 18 27));
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+}
+.kicker::after{
+  content:"";
+  width: 42px;
+  height: 1px;
+  background: rgb(var(--beni, 176 18 27) / .65);
+}
+
+.title{
+  margin: 18px 0 0;
+  font-family: var(--font-serif, "Hiragino Mincho ProN", "Yu Mincho", "Noto Serif JP", serif);
+  font-size: clamp(34px, 3.2vw, 46px);
+  letter-spacing: .10em;
+  line-height: 1.18;
+}
+
+.sub{
+  margin: 14px 0 0;
+  font-family: var(--font-sans, system-ui, -apple-system, "Segoe UI", sans-serif);
+  font-size: 13px;
+  letter-spacing: .10em;
+  color: rgb(var(--ink) / .72);
+  max-width: 52ch;
+}
+
+.blocks{
+  margin-top: 26px;
+  display: grid;
+  gap: 22px;
+}
+
+.block{
+  padding-top: 18px;
+  border-top: 1px solid rgb(var(--ink) / .12);
+}
+
+/* ✅ dot→線に変更 */
+.blockHead{
+  display: grid;
+  grid-template-columns: 14px 42px 1fr;
+  align-items: baseline;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+.mark{
+  width: 14px;
+  height: 1px;
+  background: rgb(var(--beni, 176 18 27) / .70);
+  transform: translateY(9px);
+}
+
+.no{
+  font-family: var(--font-sans, system-ui, -apple-system, "Segoe UI", sans-serif);
+  font-size: 12px;
+  letter-spacing: .22em;
+  color: rgb(var(--beni, 176 18 27));
+  font-variant-numeric: tabular-nums;
+}
+
+.h3{
+  margin: 0;
+  font-family: var(--font-serif, "Hiragino Mincho ProN", "Yu Mincho", "Noto Serif JP", serif);
+  font-size: 18px;
+  letter-spacing: .12em;
+  color: rgb(var(--ink) / .88);
+}
+
+.rows{
+  display: grid;
+  gap: 10px;
+  padding-left: 64px;
+}
+
+.row{
+  display: grid;
+  grid-template-columns: 110px 1fr;
+  gap: 14px;
+  align-items: start;
+}
+
+.rowLabel{
+  font-family: var(--font-sans, system-ui, -apple-system, "Segoe UI", sans-serif);
+  font-size: 11px;
+  letter-spacing: .18em;
+  color: rgb(var(--ink) / .60);
+}
+
+.rowText{
+  font-family: var(--font-sans, system-ui, -apple-system, "Segoe UI", sans-serif);
+  font-size: 13.5px;
+  letter-spacing: .06em;
+  line-height: 1.85;
+  color: rgb(var(--ink) / .78);
+}
+
+/* route */
+.routeList{
+  padding-left: 64px;
+  display: grid;
+  gap: 14px;
+}
+.route{
+  display: grid;
+  grid-template-columns: 28px 1fr;
+  gap: 14px;
+  align-items: start;
+  padding: 10px 0;
+  border-top: 1px dashed rgb(var(--ink) / .12);
+}
+.route:first-child{ border-top: none; padding-top: 0; }
+
+.icon{ color: rgb(var(--beni, 176 18 27)); opacity: .9; }
+.svg{ width: 22px; height: 22px; }
+
+.routeTitle{
+  font-family: var(--font-sans, system-ui, -apple-system, "Segoe UI", sans-serif);
+  font-size: 12px;
+  letter-spacing: .14em;
+  color: rgb(var(--ink) / .74);
+}
+.routeLine{
+  margin-top: 6px;
+  font-family: var(--font-sans, system-ui, -apple-system, "Segoe UI", sans-serif);
+  font-size: 13.5px;
+  letter-spacing: .06em;
+  line-height: 1.85;
+  color: rgb(var(--ink) / .78);
+}
+
+/* contact */
+.contact{
+  padding-left: 64px;
+  display: grid;
+  gap: 12px;
+}
+.contactRow{
+  display: grid;
+  grid-template-columns: 28px 1fr;
+  gap: 14px;
+  align-items: center;
+}
+.contactLabel{
+  font-family: var(--font-sans, system-ui, -apple-system, "Segoe UI", sans-serif);
+  font-size: 11px;
+  letter-spacing: .22em;
+  color: rgb(var(--ink) / .60);
+}
+.contactValue{
+  margin-top: 4px;
+  font-family: var(--font-sans, system-ui, -apple-system, "Segoe UI", sans-serif);
+  font-size: 13.5px;
+  letter-spacing: .08em;
+  color: rgb(var(--ink) / .78);
+}
+.contactLink{
+  text-decoration: underline;
+  text-decoration-color: rgb(var(--ink) / .26);
+  text-underline-offset: 4px;
+}
+.contactSmall{
+  margin-left: 6px;
+  font-size: 12px;
+  letter-spacing: .06em;
+  color: rgb(var(--ink) / .58);
+}
+
+/* right map */
+.right{ min-width: 0; }
+
+.mapStage{
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 18px 44px var(--shadow);
+  background: #000;
+  height: clamp(420px, 34vw, 620px);
+}
+
+.mapImg{
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  opacity: .98;
+  filter: saturate(.92) contrast(.96) brightness(1.03);
+}
+
+.mapStage::after{
+  content:"";
+  position:absolute;
+  inset:0;
+  pointer-events:none;
+  background:
+    radial-gradient(820px 420px at 75% 18%, rgb(255 255 255 / .55) 0%, transparent 62%),
+    linear-gradient(to left, rgb(0 0 0 / .02) 0%, rgb(0 0 0 / .10) 65%, rgb(0 0 0 / .18) 100%);
+  opacity: .55;
+}
+
+.mapCard{
+  position:absolute;
+  top: 22px;
+  right: 22px;
+  z-index: 2;
+
+  width: min(300px, 48%);
+  padding: 18px 18px 16px;
+  text-decoration: none;
+
+  background: rgb(248 246 242 / .86);
+  border: 1px solid rgb(var(--beni, 176 18 27) / .55);
+  box-shadow: 0 12px 28px rgb(0 0 0 / .10);
+  color: rgb(var(--ink) / .86);
+}
+
+.mapCardTop{
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.mapKicker{
+  font-family: var(--font-sans, system-ui, -apple-system, "Segoe UI", sans-serif);
+  font-size: 11px;
+  letter-spacing: .26em;
+  color: rgb(var(--beni, 176 18 27));
+}
+
+.mapRule{
+  flex: 1;
+  height: 1px;
+  background: rgb(var(--beni, 176 18 27) / .45);
+}
+
+.mapCardTitle{
+  margin-top: 12px;
+  font-family: var(--font-serif, "Hiragino Mincho ProN", "Yu Mincho", "Noto Serif JP", serif);
+  font-size: 18px;
+  letter-spacing: .16em;
+}
+.mapCardSub{
+  margin-top: 10px;
+  font-family: var(--font-sans, system-ui, -apple-system, "Segoe UI", sans-serif);
+  font-size: 12.5px;
+  letter-spacing: .06em;
+  line-height: 1.75;
+  color: rgb(var(--ink) / .74);
+}
+
+.mapCardLink{
+  margin-top: 12px;
+  font-family: var(--font-sans, system-ui, -apple-system, "Segoe UI", sans-serif);
+  font-size: 12.5px;
+  letter-spacing: .08em;
+  color: rgb(var(--ink) / .72);
+}
+.arrow{ opacity: .75; }
+
+/* bottom bar */
+.bottom{
+  grid-column: 1 / -1;
+  margin-top: 22px;
+
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr auto;
+  align-items: stretch;
+  gap: 0;
+
+  border-top: 1px solid rgb(var(--ink) / .12);
+  background: rgb(248 246 242 / .62);
+}
+.bottomItem{
+  display: grid;
+  grid-template-columns: 28px 1fr;
+  gap: 12px;
+  padding: 16px 18px;
+  align-items: center;
+}
+.bottomItem + .bottomItem{
+  border-left: 1px solid rgb(var(--ink) / .10);
+}
+
+.bottomIcon{ color: rgb(var(--beni, 176 18 27)); opacity: .9; }
+.svgSm{ width: 20px; height: 20px; }
+
+.bottomLabel{
+  font-family: var(--font-sans, system-ui, -apple-system, "Segoe UI", sans-serif);
+  font-size: 11px;
+  letter-spacing: .22em;
+  color: rgb(var(--ink) / .60);
+}
+.bottomStrong{
+  margin-top: 6px;
+  font-family: var(--font-serif, "Hiragino Mincho ProN", "Yu Mincho", "Noto Serif JP", serif);
+  font-size: 14px;
+  letter-spacing: .10em;
+  color: rgb(var(--ink) / .86);
+}
+
+.cta{
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  padding: 0 26px;
+  text-decoration: none;
+
+  background: rgb(var(--beni, 176 18 27));
+  color: rgb(255 255 255 / .92);
+
+  font-family: var(--font-sans, system-ui, -apple-system, "Segoe UI", sans-serif);
+  font-size: 13px;
+  letter-spacing: .14em;
+}
+.ctaArrow{ opacity: .9; }
+
+/* responsive */
+@media (max-width: 980px){
+  .wrap{ grid-template-columns: 1fr; gap: 28px; }
+  .left{ padding-left: 0; }
+  .rows, .routeList, .contact{ padding-left: 0; }
+  .row{ grid-template-columns: 92px 1fr; }
+  .mapStage{ height: clamp(320px, 56vw, 520px); }
+
+  .bottom{ grid-template-columns: 1fr; }
+  .bottomItem + .bottomItem{
+    border-left: none;
+    border-top: 1px solid rgb(var(--ink) / .10);
+  }
+  .cta{
+    padding: 16px 18px;
+    justify-content: space-between;
+  }
+}
+/* 追加：Accessの“逃げ道1行” */
+.help{
+  margin-top: 18px;
+  padding-left: 64px; /* blocksのインデントと合わせる */
+  font-family: var(--font-sans);
+  font-size: 12.5px;
+  letter-spacing: .06em;
+  color: rgb(var(--ink) / .62);
+}
+
+/* bottom：3枠→2枠+CTA */
+.bottom{
+  grid-template-columns: 1fr 1fr auto;
+}

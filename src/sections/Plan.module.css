@@ -1,0 +1,742 @@
+/* src/sections/Plan.module.css — PLAN (統合済み / 文字主役 + 画像スタンプ) */
+
+.section{
+  position: relative;
+  background: rgb(var(--bg, 248 246 242));
+  color: rgb(var(--ink, 18 18 18));
+  overflow: clip;
+
+  --planLead: clamp(140px, 16vh, 240px);
+  padding-top: var(--planLead);
+  padding-bottom: clamp(88px, 10vh, 150px);
+}
+
+@supports not (overflow: clip){
+  .section{ overflow: hidden; }
+}
+
+/* 斜線：編集感 */
+.section::before{
+  content:"";
+  position:absolute;
+  inset:0;
+  pointer-events:none;
+  z-index:0;
+  opacity:.055;
+  background:
+    repeating-linear-gradient(
+      112deg,
+      rgb(var(--ink, 18 18 18) / 1) 0 1px,
+      transparent 1px 30px
+    );
+  mask-image:
+    radial-gradient(1200px 520px at 55% 18%,
+      #000 0%,
+      #000 55%,
+      transparent 88%);
+}
+.section::after{ content: none; }
+
+/* =========================
+   WRAP
+========================= */
+.wrap{
+  --edge: clamp(12px, 2.8vw, 48px);
+  --vcol: clamp(96px, 9vw, 148px);
+  --vTop: calc(var(--planLead) + clamp(16px, 2vh, 36px));
+  --vNudge: -262px;
+
+  width: 100%;
+  max-width: none;
+  margin: 0;
+
+  padding: 0 var(--edge);
+
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) var(--vcol);
+  gap: clamp(12px, 2.2vw, 34px);
+
+  position: relative;
+  z-index: 1;
+  isolation: isolate;
+}
+
+/* =========================
+   Vertical copy (DO NOT TOUCH)
+========================= */
+.vertical{
+  position: absolute;
+  right: var(--edge);
+  top: calc(var(--vTop) + var(--vNudge));
+  z-index: 60;
+  pointer-events: none;
+  opacity: .98;
+}
+
+.verticalInner{
+  writing-mode: vertical-rl;
+  text-orientation: upright;
+  font-family: var(--font-serif, "Hiragino Mincho ProN", "Yu Mincho", "Noto Serif JP", serif);
+  font-size: clamp(34px, 2.9vw, 46px);
+  letter-spacing: .09em;
+  line-height: 1.02;
+}
+
+.v1, .v2{ color: rgb(var(--ink, 18 18 18)); }
+.vBeni{
+  color: rgb(var(--beni, 164 30 60));
+  font-size: 1.72em;
+  letter-spacing: .02em;
+  margin: .14em 0;
+}
+
+/* =========================
+   Stack / List
+========================= */
+/* Stack / List */
+.stack{
+  grid-column: 1;
+  min-width: 0;
+  position: relative;
+  z-index: 1;
+
+  --metaW: clamp(260px, 22vw, 420px);
+
+  /* ✅ 追加：テキスト群の“右寄せ量” */
+  --metaShift: clamp(10px, 1.2vw, 18px);
+}
+
+/* ✅ PCだけ：テキスト・紙面・基準線をまとめて右へ */
+@media (min-width: 861px){
+  .meta{
+    padding-left: var(--metaShift);
+    /* 既存の padding: 12px 12px 12px 0; を上書きする意図 */
+    padding-right: 12px;
+    padding-bottom: 12px;
+    padding-top: clamp(10px, 1.2vh, 16px);
+  }
+
+  /* 紙面も追従（置き去りにしない） */
+  .meta::before{
+    inset: -18px -110px -18px calc(-14px + var(--metaShift));
+  }
+
+  /* 基準線も追従 */
+  .meta::after{
+    left: calc(-12px + var(--metaShift));
+  }
+}
+
+.list{
+  list-style: none;
+  margin: 0;
+  padding: 0;
+
+  display: grid;
+  gap: clamp(22px, 3.2vh, 44px);
+}
+
+/* =========================
+   Item
+========================= */
+.item{
+  display: grid;
+  grid-template-columns: var(--metaW) minmax(0, 1fr);
+  gap: clamp(12px, 1.8vw, 28px);
+  align-items: start;
+  position: relative;
+  padding: clamp(14px, 2.2vh, 24px) 0;
+}
+
+.item + .item{
+  border-top: 1px solid rgb(var(--ink) / .08);
+}
+
+/* 段差 */
+.item:nth-child(1){ margin-left: 0; }
+.item:nth-child(2){ margin-left: clamp(22px, 4.4vw, 150px); }
+.item:nth-child(3){ margin-left: clamp(8px, 2.0vw, 48px); }
+
+/* =========================
+   Meta
+========================= */
+.meta{
+  position: relative;
+  z-index: 2;
+  padding: 12px 12px 12px 0;
+  padding-top: clamp(10px, 1.2vh, 16px);
+}
+
+/* 紙面を右へ伸ばす（文字主役のスイッチ） */
+.meta::before{
+  content:"";
+  position:absolute;
+  inset: -18px -110px -18px -14px;
+  pointer-events:none;
+  z-index:-1;
+  background:
+    linear-gradient(90deg,
+      rgb(var(--bg) / .992) 0%,
+      rgb(var(--bg) / .962) 76%,
+      rgb(var(--bg) / .30) 90%,
+      transparent 100%);
+}
+
+/* 主役の骨：基準線 */
+.meta::after{
+  content:"";
+  position:absolute;
+  left: -12px;
+  top: -10px;
+  bottom: -10px;
+  width: 1px;
+  background: rgb(var(--ink) / .08);
+  pointer-events:none;
+  z-index:-1;
+}
+
+.meta > *{ position: relative; z-index: 1; }
+
+.no{
+  font-family: var(--font-serif, "Times New Roman", serif);
+  font-size: 28px;
+  letter-spacing: .08em;
+  color: rgb(var(--beni, 164 30 60));
+  opacity: .96;
+}
+.en{
+  margin-top: 10px;
+  font-family: var(--font-sans, system-ui, -apple-system, "Segoe UI", sans-serif);
+  font-size: 12px;
+  letter-spacing: .18em;
+  text-transform: uppercase;
+  opacity: .90;
+}
+.rule{
+  margin: 14px 0 14px;
+  width: 54px;
+  height: 1px;
+  background: rgb(var(--ink) / .12);
+  opacity: .95;
+}
+.jp{
+  font-family: var(--font-serif, "Hiragino Mincho ProN", "Yu Mincho", "Noto Serif JP", serif);
+  font-size: clamp(16px, 1.25vw, 18px);
+  letter-spacing: .09em;
+  opacity: .99;
+}
+.desc{
+  margin: 12px 0 0;
+  font-family: var(--font-sans, system-ui, -apple-system, "Segoe UI", sans-serif);
+  font-size: 15px;
+  letter-spacing: .045em;
+  line-height: 1.92;
+  opacity: .94;
+}
+.price{
+  margin-top: 18px;
+  font-family: var(--font-sans, system-ui, -apple-system, "Segoe UI", sans-serif);
+  font-size: clamp(24px, 1.9vw, 28px);
+  letter-spacing: .05em;
+  font-weight: 800;
+  opacity: .98;
+}
+.time{
+  margin-top: 10px;
+  font-family: var(--font-sans);
+  font-size: 12px;
+  letter-spacing: .08em;
+  opacity: .86;
+}
+
+/* =========================
+   Image stage (+ stamp)
+========================= */
+
+/* ✅ 画像上にスタンプを乗せる土台 */
+.stageWrap{
+  position: relative;
+  width: 100%;
+}
+
+/* stageはそのまま舞台化 */
+.stage{
+  width: 100%;
+  margin: 0;
+  border-radius: 0;
+  position: relative;
+  z-index: 1;
+
+  filter: drop-shadow(0 12px 28px rgb(0 0 0 / .09));
+}
+
+/* 薄い膜（blur無し） */
+.stage::after{
+  content:"";
+  position:absolute;
+  inset:0;
+  pointer-events:none;
+  background:
+    linear-gradient(90deg,
+      rgb(var(--bg) / .34) 0%,
+      rgb(var(--bg) / .18) 46%,
+      transparent 78%),
+    radial-gradient(70% 80% at 14% 54%,
+      rgb(255 255 255 / .20) 0%,
+      transparent 62%);
+  opacity: .98;
+}
+
+/* 写真を静かに */
+.img{
+  opacity: .93;
+  filter: saturate(.80) contrast(.94) brightness(1.04);
+}
+
+/* ✅ 画像に刺す“プラン情報スタンプ”（紙の刻印） */
+.stamp{
+  position: absolute;
+  left: clamp(12px, 1.2vw, 16px);
+  bottom: clamp(10px, 1.2vw, 14px);
+  z-index: 5;
+  pointer-events: none;
+
+  padding: 10px 12px;
+  max-width: min(44ch, calc(100% - 24px));
+
+  background: linear-gradient(
+    90deg,
+    rgb(var(--bg) / .96) 0%,
+    rgb(var(--bg) / .78) 70%,
+    transparent 100%
+  );
+  border-left: 1px solid rgb(var(--ink) / .12);
+}
+
+.stampPrice{
+  font-family: var(--font-serif, "Hiragino Mincho ProN", "Yu Mincho", serif);
+  font-size: clamp(22px, 1.8vw, 28px);
+  font-weight: 800;
+  letter-spacing: .05em;
+  line-height: 1.05;
+  color: rgb(var(--ink));
+}
+
+.stampTime{
+  margin-top: 8px;
+  font-family: var(--font-sans, system-ui, -apple-system, "Segoe UI", sans-serif);
+  font-size: 12px;
+  letter-spacing: .08em;
+  opacity: .86;
+}
+
+/* 画像のズラし（stageWrapに適用＝構図維持） */
+.item:nth-child(1) .stageWrap{
+  transform: translateX(-clamp(8px, 1.4vw, 28px)) translateY(-2px);
+}
+.item:nth-child(2) .stageWrap{
+  transform: translateX(clamp(8px, 1.6vw, 56px)) translateY(0px) rotate(-.25deg);
+}
+.item:nth-child(3) .stageWrap{
+  transform: translateX(-clamp(10px, 1.6vw, 64px)) translateY(-2px) rotate(.18deg);
+}
+
+/* =========================
+   Signature
+========================= */
+.bottomMark{
+  margin-top: clamp(24px, 3.2vh, 46px);
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  align-items: baseline;
+  opacity: .64;
+}
+.smallCaps{
+  font-family: var(--font-sans, system-ui, -apple-system, "Segoe UI", sans-serif);
+  font-size: 10px;
+  letter-spacing: .24em;
+  text-transform: uppercase;
+}
+.beniCaps{
+  font-family: var(--font-sans, system-ui, -apple-system, "Segoe UI", sans-serif);
+  font-size: 10px;
+  letter-spacing: .24em;
+  text-transform: uppercase;
+  color: rgb(var(--beni, 164 30 60));
+}
+
+/* =========================
+   Breakpoints
+========================= */
+@media (max-width: 1080px){
+  .item{
+    grid-template-columns: clamp(240px, 26vw, 360px) minmax(0, 1fr);
+  }
+}
+
+/* tablet */
+@media (max-width: 860px){
+  .wrap{
+    grid-template-columns: 1fr;
+    gap: 18px;
+  }
+
+  .vertical{
+    position: relative;
+    right: auto;
+    top: auto;
+    margin-left: auto;
+    margin-bottom: 8px;
+  }
+
+  .verticalInner{
+    writing-mode: horizontal-tb;
+    text-orientation: mixed;
+    font-size: clamp(22px, 4.8vw, 30px);
+    letter-spacing: .06em;
+  }
+  .vBeni{ font-size: 1.3em; margin: 0 .18em; }
+
+  .item{
+    grid-template-columns: 1fr;
+    gap: 14px;
+    align-items: start;
+    margin-left: 0 !important;
+    padding: 0;
+  }
+
+  .item + .item{ border-top: none; }
+
+  .stageWrap{ transform: none !important; }
+}
+
+/* mobile */
+@media (max-width: 520px){
+  .section{
+    padding-top: clamp(52px, 8vh, 104px);
+    padding-bottom: clamp(80px, 10vh, 128px);
+  }
+
+  .list{ gap: 54px; }
+  .jp{ font-size: 15px; }
+  .desc{ font-size: 12.4px; }
+  .price{ font-size: clamp(19px, 4.6vw, 22px); }
+
+  /* スタンプが窮屈ならここだけ詰める */
+  .stamp{
+    padding: 9px 10px;
+    max-width: calc(100% - 20px);
+  }
+}
+/* =========================
+   Plan：画像側キャプションを殺す（重複防止）
+   - RevealImage が figcaption / data-cap / .cap を吐いても消える
+========================= */
+.stage :is(figcaption, [data-cap], .cap, .caption){
+  display: none !important;
+}
+/* ✅ 追加：発火トリガ（何も持たない） */
+.in{}
+
+/* ✅ 縦コピー：解像フェード */
+.vertical{
+  /* 既存の sticky / top / pointer-events 等はそのままにしてOK */
+
+  opacity: 0;
+  transform: translate3d(0, 18px, 0) scale(0.995);
+  filter: blur(0.25px);
+  will-change: opacity, transform, filter;
+
+  transition:
+    opacity .62s var(--ease-out),
+    transform .92s var(--ease-out),
+    filter 1.05s var(--ease-out);
+}
+
+.in .vertical{
+  opacity: .96; /* ← 既存の最終値に合わせる */
+  transform: translate3d(0, 0, 0) scale(1);
+  filter: blur(0px);
+}
+
+/* ✅ 3塊を順に “像が整う” */
+.verticalInner > span{
+  display: inline-block;
+  opacity: 0;
+  transform: translate3d(0, 10px, 0);
+  filter: blur(0.25px);
+  will-change: opacity, transform, filter;
+
+  transition:
+    opacity .52s var(--ease-out),
+    transform .78s var(--ease-out),
+    filter .95s var(--ease-out);
+}
+
+.in .verticalInner > span{
+  opacity: 1;
+  transform: translate3d(0, 0, 0);
+  filter: blur(0px);
+}
+
+/* ✅ “迷うなら” → “紅” → “で決める” */
+.in .v1{ transition-delay: .10s; }
+.in .vBeni{ transition-delay: .18s; }
+.in .v2{ transition-delay: .26s; }
+/* 画面には出さないが、読み上げには残す */
+.srOnly{
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0,0,0,0);
+  white-space: nowrap;
+  border: 0;
+}
+/* 左の説明欄：詩に特化 */
+.meta{
+  display: flex;
+  align-items: center;
+  min-height: 100%;
+  padding: 0 clamp(10px, 1.4vw, 22px) 0 clamp(12px, 1.8vw, 28px);
+}
+
+.poem{
+  margin: 0;
+  max-width: 22ch;
+  font-family: var(--font-serif);
+  font-size: clamp(17px, 1.4vw, 22px);
+  line-height: 2;
+  letter-spacing: .08em;
+  color: rgb(var(--ink) / .88);
+}
+
+.srOnly{
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0,0,0,0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* 画像ラップ */
+.stageWrap{
+  position: relative;
+}
+
+/* 上部情報 */
+.overlayTop{
+  position: absolute;
+  top: clamp(18px, 2vw, 28px);
+  left: clamp(18px, 2vw, 28px);
+  z-index: 3;
+
+  display: grid;
+  gap: 6px;
+
+  padding: 14px 16px 12px;
+  background: linear-gradient(
+    to right,
+    rgb(var(--bg) / .94),
+    rgb(var(--bg) / .72)
+  );
+  backdrop-filter: blur(2px);
+}
+
+.overlayNo{
+  font-family: var(--font-serif);
+  font-size: 14px;
+  letter-spacing: .14em;
+  color: rgb(var(--beni));
+}
+
+.overlayEn{
+  font-family: var(--font-sans);
+  font-size: 11px;
+  letter-spacing: .28em;
+  text-transform: uppercase;
+  color: rgb(var(--ink) / .76);
+}
+
+.overlayJp{
+  font-family: var(--font-serif);
+  font-size: clamp(18px, 1.4vw, 24px);
+  letter-spacing: .08em;
+  line-height: 1.4;
+  color: rgb(var(--ink));
+}
+
+.overlayBadge{
+  font-family: var(--font-sans);
+  font-size: 11px;
+  letter-spacing: .12em;
+  color: rgb(var(--ink) / .68);
+}
+
+/* 下部スタンプ */
+.stamp{
+  position: absolute;
+  left: clamp(18px, 2vw, 28px);
+  bottom: clamp(18px, 2vw, 28px);
+  z-index: 3;
+
+  padding: 14px 16px 12px;
+  background: linear-gradient(
+    to right,
+    rgb(var(--bg) / .96),
+    rgb(var(--bg) / .78)
+  );
+  backdrop-filter: blur(2px);
+}
+
+.stampPrice{
+  font-family: var(--font-serif);
+  font-size: clamp(24px, 1.9vw, 34px);
+  line-height: 1.1;
+  letter-spacing: .04em;
+  color: rgb(var(--beni));
+}
+
+.stampTime{
+  margin-top: 8px;
+  font-family: var(--font-sans);
+  font-size: 11px;
+  line-height: 1.8;
+  letter-spacing: .08em;
+  color: rgb(var(--ink) / .76);
+}
+/* =========================
+   Overlay v2: 赤は“線”、文字はオフ白
+========================= */
+
+:root{
+  /* 写真が明るいなら .56 → .62 くらいまで上げる */
+  --veilA: .56;
+  --veilB: .18;
+}
+
+/* 膜（白板じゃない） */
+.overlayTop,
+.stamp{
+  background:
+    linear-gradient(
+      90deg,
+      rgb(12 10 12 / var(--veilA)) 0%,
+      rgb(12 10 12 / var(--veilB)) 62%,
+      transparent 100%
+    );
+
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+
+  border: none;
+}
+
+/* 赤は“文字”じゃなく“署名の罫線”にする */
+.overlayTop::before,
+.stamp::before{
+  content:"";
+  position:absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 1px;
+  background: linear-gradient(
+    180deg,
+    transparent 0%,
+    rgb(var(--beni) / .55) 28%,
+    rgb(var(--beni) / .28) 62%,
+    transparent 100%
+  );
+  opacity: .9;
+}
+
+/* 文字はbg寄りのオフ白で統一（色喧嘩を止める） */
+.overlayNo,
+.overlayJp,
+.stampPrice{
+  color: rgb(var(--bg) / .92);
+  text-shadow: 0 1px 0 rgb(0 0 0 / .22);
+}
+
+/* サブ情報は少し落とす */
+.overlayEn,
+.overlayBadge,
+.stampTime{
+  color: rgb(var(--bg) / .70);
+}
+/* =========================
+   Overlay reveal sync (with image)
+========================= */
+
+.stageWrap .overlayTop,
+.stageWrap .stamp{
+  opacity: 0;
+  transform: translate3d(0, 14px, 0) scale(0.995);
+  filter: blur(0.18px);
+  will-change: opacity, transform, filter;
+
+  transition:
+    opacity .62s var(--ease-out),
+    transform 1.05s var(--ease-out),
+    filter 1.05s var(--ease-out);
+
+  transition-delay: var(--ovDelay, 0s);
+}
+
+.stageWrap[data-ov="1"] .overlayTop,
+.stageWrap[data-ov="1"] .stamp{
+  opacity: 1;
+  transform: translate3d(0,0,0) scale(1);
+  filter: blur(0px);
+}
+
+@media (prefers-reduced-motion: reduce){
+  .stageWrap .overlayTop,
+  .stageWrap .stamp{
+    transition: none;
+    opacity: 1;
+    transform: none;
+    filter: none;
+  }
+}
+/* 詩が途中で折れない最低幅を確保 */
+.stack{
+  --metaW: clamp(320px, 24vw, 520px);
+}
+.poemLine{
+  display: block;
+  white-space: nowrap;
+}
+/* stamp: time readability boost */
+.stampTime{
+  margin-top: 9px;
+  display: grid;
+  gap: 4px;
+
+  font-family: var(--font-sans);
+  font-size: 12px;          /* 11px→12px */
+  line-height: 1.45;        /* 読みやすさ優先 */
+  letter-spacing: .06em;
+
+  color: rgb(var(--bg) / .78);
+  text-shadow: 0 1px 0 rgb(0 0 0 / .24);
+}
+
+.duration{
+  font-weight: 520;
+  color: rgb(var(--bg) / .76);
+}
+
+.returnBy{
+  font-weight: 680;         /* “返却”は重要度が高い */
+  color: rgb(var(--bg) / .90);
+  font-variant-numeric: tabular-nums; /* 〜19:00 の見え方が締まる */
+}
