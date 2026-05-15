@@ -1,6 +1,6 @@
 /* src/sections/HeroSp.module.css
    - SP Hero：写真主役 / 文字は床で守る
-   - bg位置ズレ対策：object-positionを変数化 + aspect-ratioで補正
+   - “スクロールでズームっぽく見える”対策：dvhを使わない（svh固定）
 */
 
 .hero{
@@ -10,14 +10,9 @@
   --pad-x: 18px;
 
   position: relative;
-  min-height: 100svh;
+  min-height: 100svh; /* ← svh固定（dvhは使わない） */
   background: rgb(var(--bg, 250 248 244));
   overflow: clip;
-}
-
-/* dvh対応ブラウザはこっちが勝つ（アドレスバー変動でも破綻しにくい） */
-@supports (height: 100dvh){
-  .hero{ min-height: 100dvh; }
 }
 
 @supports not (overflow: clip){
@@ -106,7 +101,7 @@
 /* ===== 文字スタック ===== */
 .stack{
   position: relative;
-  min-height: 100svh;
+  min-height: 100svh; /* ← svh固定（dvhは使わない） */
 
   display: flex;
   flex-direction: column;
@@ -117,10 +112,6 @@
     calc(env(safe-area-inset-top) + 16px)
     var(--pad-x)
     calc(max(env(safe-area-inset-bottom), 12px) + 22px);
-}
-
-@supports (height: 100dvh){
-  .stack{ min-height: 100dvh; }
 }
 
 /* 情報（主役にしない） */

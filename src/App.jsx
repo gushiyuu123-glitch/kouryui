@@ -27,6 +27,9 @@ import AccessSp from "./sections/AccessSp";
 import ReserveSp from "./sections/ReserveSp";
 import FooterSp from "./sections/FooterSp";
 
+/* ✅ PCだけLenis */
+import useLenisPc from "./useLenisPc";
+
 const MQ_SP = "(max-width: 880px)";
 
 /* hook: matchMedia */
@@ -60,6 +63,9 @@ function useMediaQuery(query) {
 
 export default function App() {
   const isSp = useMediaQuery(MQ_SP);
+
+  // ✅ PCだけLenis ON（SPはOFF）
+  useLenisPc(!isSp);
 
   // ✅ デバッグ用：htmlに属性（CSS側で分岐したい時に使える）
   useEffect(() => {

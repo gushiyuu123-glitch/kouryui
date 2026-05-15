@@ -2,7 +2,7 @@ import React from "react";
 import ReactDOM from "react-dom/client";
 import App from "./App.jsx";
 import "./index.css";
-
+import "lenis/dist/lenis.css"; // Lenis公式CSS
 ReactDOM.createRoot(document.getElementById("root")).render(
   <React.StrictMode>
     <App />
