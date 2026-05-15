@@ -22,8 +22,6 @@
 
 /* -----------------------------
    RevealImage
-   - IO mode: CSSで
-   - GSAP mode: CSSは干渉しない
 ------------------------------ */
 .image{
   --reveal-bg: rgb(var(--bg, 248 246 242));
@@ -35,6 +33,8 @@
   overflow: hidden;
 
   border-radius: 0;
+
+  /* PCは立体感OK（SPで切る） */
   filter: drop-shadow(0 26px 56px rgb(0 0 0 / .14));
 }
 
@@ -61,7 +61,7 @@
   transition: none;
 }
 
-/* Wipe layer */
+/* Wipe layer (PC用) */
 .wipe{
   position: absolute;
   inset: -2px;
@@ -118,6 +118,37 @@
     linear-gradient(to bottom,
       rgb(0 0 0 / .08),
       rgb(0 0 0 / 0) 58%);
+}
+
+/* -----------------------------
+   SP軽量化：フェードは残す、重い原因だけ切る
+   - blur / drop-shadow / wipe を切る
+   - will-change抱え込みも抑える
+------------------------------ */
+@media (pointer: coarse) and (max-width: 900px){
+  /* フェードは残す：opacity/transformはそのまま */
+  .text{
+    filter: none;                 /* blurを切る */
+    will-change: opacity, transform;
+  }
+
+  .image{
+    filter: none;                 /* drop-shadowを切る */
+    outline: 1px solid rgb(0 0 0 / .06);
+    outline-offset: -1px;
+  }
+
+  .wipe{
+    display: none;                /* 布はSPで切る（像だけ残す） */
+  }
+
+  .img{
+    will-change: auto;            /* 多発時のメモリ抱え込みを避ける */
+  }
+
+  .image::after{
+    opacity: .88;                 /* 重さを少し抜く */
+  }
 }
 
 /* reduced motion */

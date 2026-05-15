@@ -85,6 +85,17 @@ function toSeconds(d) {
 }
 
 /* -----------------------------
+   SP判定：スマホはGSAP禁止（IO固定）
+   - coarse + small width だけを「SP扱い」にする
+------------------------------ */
+function isPhoneLike() {
+  if (typeof window === "undefined") return false;
+  const mq = window.matchMedia?.("(pointer: coarse) and (max-width: 900px)");
+  if (mq) return mq.matches;
+  return window.innerWidth <= 900;
+}
+
+/* -----------------------------
    RevealText
 ------------------------------ */
 export function RevealText({
@@ -129,9 +140,9 @@ export function RevealImage({
   ratio = "16/9",
 
   /* mode:
-     - "auto": prefers GSAP (if not reduced)
-     - "gsap": GSAP ScrollTrigger
-     - "io"  : IO + CSS transition
+     - "auto": PCはGSAP、SPはIOに強制
+     - "gsap": GSAP ScrollTrigger（SPでは無効化されIOへ）
+     - "io"  : IO + CSS transition（全端末OK）
   */
   mode = "auto",
   start = "top 78%",
@@ -149,11 +160,15 @@ export function RevealImage({
     typeof window !== "undefined" &&
     window.matchMedia?.("(prefers-reduced-motion: reduce)")?.matches;
 
+  const phoneLike = typeof window !== "undefined" && isPhoneLike();
+
+  // ✅ SPは必ずIO（ScrollTrigger増殖を止める）
   const useGsap =
     !reduce &&
+    !phoneLike &&
     (mode === "gsap" || (mode === "auto" && typeof window !== "undefined"));
 
-  /* GSAP mode */
+  /* GSAP mode (PC only) */
   useLayoutEffect(() => {
     if (!useGsap) return;
     ensureGsap();
@@ -163,13 +178,11 @@ export function RevealImage({
     const wipe = wipeRef.current;
     if (!frame || !img || !wipe) return;
 
-    // reduced は IO/CSS に任せる
     if (prefersReduce()) {
       frame.classList.add(styles.in);
       return;
     }
 
-    // 初期：像が整い始める前の状態
     const DUR = { frame: 0.68, wipe: 1.02, img: 1.28 };
     const INIT = { scale: 1.08, y: 10 };
 
@@ -181,17 +194,11 @@ export function RevealImage({
 
     const tl = gsap.timeline({
       defaults: { ease: "power2.out" },
-      scrollTrigger: {
-        trigger: frame,
-        start,
-        once: true,
-      },
+      scrollTrigger: { trigger: frame, start, once: true },
     });
 
-    // delayはトリガー後に効かせる
     if (delay > 0) tl.delay(delay);
 
-    // 先に“像” → 少し遅れて“布”
     tl.to(frame, { opacity: 1, y: 0, duration: DUR.frame }, 0.0);
     tl.to(img, { scale: 1.02, y: 0, duration: DUR.img }, 0.0);
     tl.to(wipe, { yPercent: -112, duration: DUR.wipe }, 0.12);
@@ -202,7 +209,7 @@ export function RevealImage({
     };
   }, [useGsap, start, d]);
 
-  /* IO mode (only when not GSAP) */
+  /* IO mode (SP / or when GSAP is off) */
   useInViewOnce(
     frameRef,
     () => frameRef.current?.classList.add(styles.in),
@@ -213,13 +220,12 @@ export function RevealImage({
   return (
     <figure
       ref={frameRef}
-      className={[
-        styles.image,
-        useGsap ? styles.isGsap : "",
-        className,
-      ].join(" ")}
+      className={[styles.image, useGsap ? styles.isGsap : "", className].join(
+        " "
+      )}
       style={{ "--d": d, "--ratio": ratio }}
     >
+      {/* wipeはPCで使う。SPではCSSでdisplay:noneにする */}
       <span ref={wipeRef} className={styles.wipe} aria-hidden="true" />
       <img
         ref={imgRef}

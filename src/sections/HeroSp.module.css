@@ -52,7 +52,7 @@
   position: absolute;
   inset: 0;
   pointer-events: none;
-  opacity: .78;
+  opacity: .8;
   will-change: opacity;
 
   background:
@@ -62,12 +62,15 @@
       rgb(255 255 255 / .04) 46%,
       rgb(255 255 255 / 0) 72%),
 
-    /* 下：読むために残す（ここが“保険”） */
-    linear-gradient(to top,
-      rgb(var(--bg, 250 248 244) / .86) 0%,
-      rgb(var(--bg, 250 248 244) / .56) 30%,
-      rgb(var(--bg, 250 248 244) / .22) 56%,
-      rgb(var(--bg, 250 248 244) / 0) 78%);
+/* 下：読むために残す（少し強め・少し長め） */
+linear-gradient(to top,
+  rgb(var(--bg, 250 248 244) / .96) 0%,
+  rgb(var(--bg, 250 248 244) / .84) 14%,
+  rgb(var(--bg, 250 248 244) / .66) 28%,
+  rgb(var(--bg, 250 248 244) / .46) 44%,
+  rgb(var(--bg, 250 248 244) / .26) 58%,
+  rgb(var(--bg, 250 248 244) / .12) 70%,
+  rgb(var(--bg, 250 248 244) / 0)   86%);
 }
 
 /* 文字スタック */
@@ -110,14 +113,15 @@
   font-size: clamp(26px, 7.8vw, 34px);
   line-height: 1.12;
 }
-
 .desc{
+  /* そのまま */
   margin: 14px 0 0;
   font-family: var(--font-sans, system-ui, -apple-system, "Segoe UI", "Hiragino Sans", "Yu Gothic", sans-serif);
   font-size: 12px;
   line-height: 1.9;
-  letter-spacing: .10em;
-  color: rgb(var(--ink, 26 26 26) / .68);
+
+  letter-spacing: .08em;                /* ← .10 → .08（読める密度） */
+  color: rgb(var(--ink, 26 26 26) / .76); /* ← .68/.74 → .76（“少しだけ”） */
 }
 
 /* CTA：ボタンにしない（下線） */

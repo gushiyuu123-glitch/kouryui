@@ -9,7 +9,7 @@ if (typeof window !== "undefined" && !_stReady) {
   _stReady = true;
 }
 
-const LOGO_SRC = "/kouryui1.svg";
+const LOGO_SRC = "/2.svg";
 
 // ─── アニメーション定数 ────────────────────────────────────────
 const BG_FINAL_SCALE = 1.03;

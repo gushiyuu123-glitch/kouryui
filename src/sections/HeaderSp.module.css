@@ -437,3 +437,50 @@
     transition: none !important;
   }
 }
+/* ===============================
+   FIX: パネル下部が切れる問題
+   - header/footer固定
+   - navだけスクロール
+=============================== */
+
+/* 既存 .panel は overflow:hidden のままでOK（クリップ演出維持） */
+
+.panelInner{
+  /* 追加 */
+  display: flex;
+  flex-direction: column;
+
+  /* iOS含む“今見えてる高さ”に合わせる */
+  height: 100vh;
+  height: 100dvh;
+
+  box-sizing: border-box;
+
+  /* 既存のpaddingを少しだけ詰めてもいい（任意） */
+  padding:
+    calc(env(safe-area-inset-top) + 72px)
+    0
+    calc(env(safe-area-inset-bottom) + 18px);
+
+  /* navだけスクロールさせるため、ここは隠す */
+  overflow: hidden;
+}
+
+/* navをスクロール領域にする */
+.panelNav{
+  flex: 1 1 auto;
+  min-height: 0; /* ← これがないとスクロール死ぬ */
+
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
+
+  /* 右端に少し余白（スクロール時の指が気持ちいい） */
+  padding-right: 6px;
+}
+
+/* footerは最下部に居座る（予約ボタンが切れない） */
+.panelFooter{
+  flex: 0 0 auto;
+  margin-top: 16px; /* 既存22pxが重いなら */
+}
