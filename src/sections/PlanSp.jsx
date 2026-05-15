@@ -124,9 +124,7 @@ export default function PlanSp() {
 
           <RevealText as="p" className={styles.note} d="0.16s">
             色はプランに関係なく選べます。{" "}
-            <a className={styles.noteLink} href="#costume">
-              衣装を見る
-            </a>
+
           </RevealText>
         </header>
 

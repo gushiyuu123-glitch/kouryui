@@ -136,11 +136,13 @@ export default function Plan() {
         </aside>
 
         <div className={styles.stack}>
-          {/* ✅ 色×プランの喧嘩を止める1行 */}
-          <RevealText as="p" className={styles.desc} d="0.04s">
-            色はプランに関係なく選べます。
-          </RevealText>
-
+<RevealText as="div" className={styles.colorNote} d="0.04s">
+  <span className={styles.colorNoteLabel}>COLOR GUIDE</span>
+  <p className={styles.colorNoteText}>
+    プランで決める。<br />
+    色はあとで選べます。
+  </p>
+</RevealText>
           <ul className={styles.list}>
             {PLANS.map((p, i) => {
               const base = 0.02 + i * 0.10;

@@ -160,10 +160,10 @@ export default function Hero() {
               </p>
 
 
-              <div className={styles.ctaRow}>
-                <a className={styles.cta} href="#reserve">予約する</a>
-                <a className={styles.sub} href="#gallery">衣装を見る</a>
-              </div>
+<div className={styles.ctaRow}>
+  <a className={styles.cta} href="#reserve">予約する</a>
+  <a className={styles.sub} href="#gallery">写真を見る</a>
+</div>
             </div>
           </div>
         </div>

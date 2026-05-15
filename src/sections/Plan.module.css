@@ -740,3 +740,62 @@
   color: rgb(var(--bg) / .90);
   font-variant-numeric: tabular-nums; /* 〜19:00 の見え方が締まる */
 }
+.colorNote{
+  display: grid;
+  gap: 10px;
+  align-content: start;
+  justify-items: start;
+
+  max-width: 260px;
+  margin: 0 0 28px;
+  padding-top: 18px;
+
+  position: relative;
+}
+
+.colorNote::before{
+  content: "";
+  width: 72px;
+  height: 1px;
+  background: rgb(var(--accent, 161 29 38) / .20);
+}
+
+.colorNoteLabel{
+  font-family: var(--font-en, "Cormorant Garamond", serif);
+  font-size: 11px;
+  line-height: 1;
+  letter-spacing: .24em;
+  color: rgb(var(--ink, 26 26 26) / .40);
+}
+
+.colorNoteText{
+  margin: 0;
+  font-family: var(--font-mincho, "Yu Mincho", "Hiragino Mincho ProN", serif);
+  font-size: 15px;
+  line-height: 1.95;
+  letter-spacing: .10em;
+  color: rgb(var(--ink, 26 26 26) / .72);
+  text-wrap: pretty;
+}
+
+@media (max-width: 768px){
+  .colorNote{
+    max-width: 220px;
+    margin: 0 0 20px;
+    padding-top: 14px;
+  }
+
+  .colorNote::before{
+    width: 56px;
+  }
+
+  .colorNoteLabel{
+    font-size: 10px;
+    letter-spacing: .20em;
+  }
+
+  .colorNoteText{
+    font-size: 13px;
+    line-height: 1.9;
+  }
+}
