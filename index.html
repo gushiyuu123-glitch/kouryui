@@ -3,9 +3,10 @@
   <head>
     <!-- =========================================
       KOU RYUI / index.html (Vite)
-      - 最小で強い入口
+      - 最小で強い入口 + SEO最大化
       - 世界観：紙 / 墨 / 紅
     ========================================== -->
+
     <meta charset="UTF-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
 
@@ -18,30 +19,41 @@
     <!-- Google翻訳を完全無効化（言語トーン保護） -->
     <meta name="google" content="notranslate" />
 
-    <!-- Title / Description（※あとで本番文に差し替え推奨） -->
+    <!-- Basic SEO -->
     <title>KOU RYUI｜紅琉衣</title>
     <meta
       name="description"
       content="那覇・国際通りエリア｜琉球衣装レンタル（着付け込み・手ぶらOK）。迷ったまま送ってください。返信で当日の動きまで整えます。"
     />
+    <link rel="canonical" href="https://kouryui.vercel.app/" />
+
+    <!-- Robots（最大化） -->
+    <meta
+      name="robots"
+      content="index,follow,max-image-preview:large,max-snippet:-1,max-video-preview:-1"
+    />
+    <meta
+      name="googlebot"
+      content="index,follow,max-image-preview:large,max-snippet:-1,max-video-preview:-1"
+    />
 
     <!-- Theme / UI Colors -->
-    <!-- light前提。iOS/Androidのアドレスバー色が“紙”になる -->
     <meta name="theme-color" content="#FAF8F4" />
     <meta name="color-scheme" content="light" />
 
-    <!-- Icons -->
+    <!-- Referrer -->
+    <meta name="referrer" content="strict-origin-when-cross-origin" />
+
+    <!-- Icons（この会話で作ったパック前提） -->
+    <link rel="icon" href="/favicon.ico" sizes="any" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-    <!-- PNGも用意できるなら推奨（Safari対策） -->
-    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png" />
     <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16.png" />
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png" />
+    <link rel="icon" type="image/png" sizes="48x48" href="/favicon-48.png" />
     <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
+    <link rel="manifest" href="/site.webmanifest" />
 
-    <!-- Optional: PWA（必要なら） -->
-    <!-- <link rel="manifest" href="/site.webmanifest" /> -->
-
-    <!-- OGP / Twitter -->
-    <!-- ※ image はあなたのOGP実ファイルに合わせて -->
+    <!-- OGP / Twitter（絶対URLで固定：Vercel共有時に強い） -->
     <meta property="og:site_name" content="KOU RYUI｜紅琉衣" />
     <meta property="og:title" content="KOU RYUI｜紅琉衣" />
     <meta
@@ -49,9 +61,14 @@
       content="那覇・国際通りエリア｜琉球衣装レンタル（着付け込み・手ぶらOK）。迷ったまま送ってください。返信で当日の動きまで整えます。"
     />
     <meta property="og:type" content="website" />
-    <meta property="og:url" content="https://example.com/" />
-    <meta property="og:image" content="/ogp.png" />
+    <meta property="og:locale" content="ja_JP" />
+    <meta property="og:url" content="https://kouryui.vercel.app/" />
+
+    <!-- OGP画像：public/ogp.png を置く -->
+    <meta property="og:image" content="https://kouryui.vercel.app/ogp.png" />
     <meta property="og:image:alt" content="KOU RYUI｜紅琉衣" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
 
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:title" content="KOU RYUI｜紅琉衣" />
@@ -59,16 +76,26 @@
       name="twitter:description"
       content="那覇・国際通りエリア｜琉球衣装レンタル（着付け込み・手ぶらOK）。"
     />
-    <meta name="twitter:image" content="/ogp.png" />
+    <meta name="twitter:image" content="https://kouryui.vercel.app/ogp.png" />
 
-    <!-- Preload hints（外部フォント無し前提で最小） -->
-    <link rel="preload" as="image" href="/hero1-16x9.png" />
+    <!-- Preload（最小：Heroだけ先に掴む） -->
+    <link rel="preload" as="image" href="/hero1-16x9.png" fetchpriority="high" />
+
+    <!-- JSON-LD（SPAでも“入口”の意味付けは置ける） -->
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "WebSite",
+        "name": "KOU RYUI｜紅琉衣",
+        "url": "https://kouryui.vercel.app/",
+        "inLanguage": "ja"
+      }
+    </script>
   </head>
 
   <body>
     <noscript>このサイトの表示には JavaScript が必要です。</noscript>
     <div id="root"></div>
-
     <script type="module" src="/src/main.jsx"></script>
   </body>
 </html>
