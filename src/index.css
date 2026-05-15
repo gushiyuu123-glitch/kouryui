@@ -234,3 +234,7 @@ button:focus-visible{
   color: rgb(var(--ai) / .90);
   text-decoration-color: rgb(var(--beni) / .28);
 }
+html, body { overflow-x: clip; }
+@supports not (overflow: clip){
+  html, body { overflow-x: hidden; }
+}
