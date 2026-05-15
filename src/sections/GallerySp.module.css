@@ -1,0 +1,284 @@
+.section{
+  position: relative;
+  background: rgb(var(--bg, 248 246 242));
+  color: rgb(var(--ink, 18 18 18));
+  overflow: clip;
+
+  padding:
+    clamp(86px, 12vh, 122px)
+    0
+    clamp(96px, 14vh, 150px);
+}
+
+@supports not (overflow: clip){
+  .section{ overflow: hidden; }
+}
+
+/* 上だけ“紅の気配”を敷く（押さえる） */
+.section::before{
+  content:"";
+  position:absolute;
+  inset:0;
+  pointer-events:none;
+  z-index:0;
+  opacity:.78;
+  background:
+    radial-gradient(900px 260px at 52% 0%,
+      rgb(var(--beni, 176 18 27) / .10) 0%,
+      rgb(var(--beni, 176 18 27) / 0) 72%),
+    linear-gradient(to bottom,
+      rgb(0 0 0 / .04),
+      rgb(0 0 0 / 0) 56%);
+}
+
+.wrap{
+  --edge: clamp(16px, 5vw, 22px);
+
+  width: min(560px, 100%);
+  margin: 0 auto;
+  padding: 0 var(--edge);
+
+  position: relative;
+  z-index: 1;
+}
+
+.stage{ position: relative; }
+
+/* =========================
+   HEAD（紙面の背骨）
+========================= */
+.head{
+  position: relative;
+  margin: 0 0 clamp(18px, 3.4vh, 26px);
+  padding-left: 14px;
+}
+
+/* 左レール */
+.head::before{
+  content:"";
+  position:absolute;
+  left: 0;
+  top: -8px;
+  bottom: -10px;
+  width: 1px;
+  background: rgb(var(--ink, 18 18 18) / .12);
+}
+
+.kicker{
+  font-family: var(--font-sans, system-ui, -apple-system, "Segoe UI", sans-serif);
+  font-size: 10px;
+  letter-spacing: .34em;
+  text-transform: uppercase;
+  opacity: .56;
+}
+
+.title{
+  margin: 12px 0 0;
+  font-family: var(--font-serif, "Hiragino Mincho ProN", "Yu Mincho", serif);
+  font-size: clamp(24px, 6.4vw, 34px);
+  letter-spacing: .12em;
+  line-height: 1.18;
+  will-change: clip-path, transform;
+}
+
+.beni{ color: rgb(var(--beni, 176 18 27)); }
+
+.lead{
+  margin: 12px 0 0;
+  display: inline-flex;
+  gap: 10px;
+  align-items: baseline;
+  flex-wrap: wrap;
+
+  font-family: var(--font-sans, system-ui, -apple-system, "Segoe UI", sans-serif);
+  font-size: 12px;
+  letter-spacing: .10em;
+  opacity: .76;
+}
+
+.sep{ opacity: .28; }
+
+/* 3 tones（文字で出す） */
+.tBeni{ color: rgb(var(--beni, 176 18 27) / .78); }
+.tAi{ color: rgb(var(--ai, 22 49 74) / .72); }
+.tKogane{ color: rgb(var(--kogane, 168 139 43) / .74); }
+
+@supports (color: color-mix(in srgb, #000, #fff)){
+  .tBeni{
+    color: color-mix(in srgb, rgb(var(--ink, 18 18 18) / .92) 52%, rgb(var(--beni, 176 18 27) / .92));
+  }
+  .tAi{
+    color: color-mix(in srgb, rgb(var(--ink, 18 18 18) / .92) 58%, rgb(var(--ai, 22 49 74) / .92));
+  }
+  .tKogane{
+    color: color-mix(in srgb, rgb(var(--ink, 18 18 18) / .92) 56%, rgb(var(--kogane, 168 139 43) / .92));
+  }
+}
+
+.hair{
+  margin-top: 16px;
+  width: min(280px, 64vw);
+  height: 1px;
+  background: rgb(var(--ink, 18 18 18) / .10);
+  will-change: transform, opacity;
+  transform-origin: 0% 50%;
+}
+
+/* =========================
+   PANELS
+========================= */
+.panels{
+  display: grid;
+  gap: clamp(16px, 3.2vh, 22px);
+}
+
+.panel{
+  position: relative;
+  margin: 0;
+  will-change: transform, opacity;
+  filter: drop-shadow(0 18px 46px rgb(0 0 0 / .10));
+}
+
+/* 呼吸（でも事故らない） */
+.panel[data-pos="a"]{ transform: translateX(-2px) rotate(-.10deg); }
+.panel[data-pos="b"]{ transform: translateX(0px) rotate(-.06deg); }
+.panel[data-pos="c"]{ transform: translateX(2px) rotate(.08deg); }
+
+.mask{
+  width: 100%;
+  aspect-ratio: 4 / 5;
+  overflow: hidden;
+
+  background: rgb(var(--paper, 250 248 244));
+  border: 1px solid rgb(var(--ink, 18 18 18) / .10);
+
+  will-change: clip-path;
+}
+
+.img{
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: 52% 42%;
+  display: block;
+  will-change: transform;
+
+  opacity: .96;
+  filter: saturate(.90) contrast(.98) brightness(1.03);
+}
+
+/* =========================
+   CAPTION = 刻印（白板禁止）
+========================= */
+.cap{
+  position: absolute;
+  left: 12px;
+  bottom: 12px;
+  max-width: min(34ch, calc(100% - 24px));
+  pointer-events: none;
+
+  padding: 10px 12px 10px;
+
+  background:
+    linear-gradient(
+      90deg,
+      rgb(12 10 12 / var(--veilA, .56)) 0%,
+      rgb(12 10 12 / var(--veilB, .18)) 66%,
+      transparent 100%
+    );
+}
+
+/* 紅は“線”でだけ刺す */
+.cap::before{
+  content:"";
+  position:absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 1px;
+  background: linear-gradient(
+    180deg,
+    transparent 0%,
+    rgb(var(--beni, 176 18 27) / .55) 28%,
+    rgb(var(--beni, 176 18 27) / .26) 62%,
+    transparent 100%
+  );
+  opacity: .92;
+}
+
+.capTop{
+  display: flex;
+  gap: 10px;
+  align-items: baseline;
+  margin-bottom: 8px;
+}
+
+.capNo{
+  font-family: var(--font-serif, "Hiragino Mincho ProN", "Yu Mincho", serif);
+  font-size: 12px;
+  letter-spacing: .14em;
+  color: rgb(var(--bg, 248 246 242) / .92);
+  text-shadow: 0 1px 0 rgb(0 0 0 / .22);
+}
+
+.capTime{
+  font-family: var(--font-sans, system-ui, -apple-system, "Segoe UI", sans-serif);
+  font-size: 10px;
+  letter-spacing: .28em;
+  text-transform: uppercase;
+  opacity: .92;
+}
+
+.toneText{
+  font-family: var(--font-sans, system-ui, -apple-system, "Segoe UI", sans-serif);
+  font-size: 10px;
+  letter-spacing: .28em;
+  text-transform: uppercase;
+}
+
+/* フォールバック */
+.tone_beni{ color: rgb(var(--beni, 176 18 27) / .78); }
+.tone_ai{ color: rgb(var(--ai, 22 49 74) / .78); }
+.tone_kogane{ color: rgb(var(--kogane, 168 139 43) / .78); }
+
+/* 対応環境だけ“墨に混ぜる” */
+@supports (color: color-mix(in srgb, #000, #fff)){
+  .tone_beni{
+    color: color-mix(in srgb, rgb(var(--bg, 248 246 242) / .88) 60%, rgb(var(--beni, 176 18 27) / .92));
+  }
+  .tone_ai{
+    color: color-mix(in srgb, rgb(var(--bg, 248 246 242) / .88) 64%, rgb(var(--ai, 22 49 74) / .92));
+  }
+  .tone_kogane{
+    color: color-mix(in srgb, rgb(var(--bg, 248 246 242) / .88) 62%, rgb(var(--kogane, 168 139 43) / .92));
+  }
+}
+
+.capTitle{
+  font-family: var(--font-serif, "Hiragino Mincho ProN", "Yu Mincho", serif);
+  font-size: 14px;
+  letter-spacing: .10em;
+  line-height: 1.55;
+
+  color: rgb(var(--bg, 248 246 242) / .92);
+  text-shadow: 0 1px 0 rgb(0 0 0 / .22);
+  opacity: .98;
+}
+
+.capNote{
+  margin-top: 8px;
+  font-family: var(--font-sans, system-ui, -apple-system, "Segoe UI", sans-serif);
+  font-size: 11px;
+  letter-spacing: .08em;
+
+  color: rgb(var(--bg, 248 246 242) / .74);
+  text-shadow: 0 1px 0 rgb(0 0 0 / .22);
+  opacity: .92;
+}
+
+/* 端末が狭いときだけ少し詰める */
+@media (max-width: 360px){
+  .cap{ left: 10px; bottom: 10px; padding: 9px 10px; }
+  .capTitle{ font-size: 13px; }
+  .capNote{ font-size: 10.5px; }
+}

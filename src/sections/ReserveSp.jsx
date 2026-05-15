@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import styles from "./Reserve.module.css";
+import styles from "./ReserveSp.module.css";
 
 const QUICK = {
   soon: "最短のご案内：明日 13:00〜（目安）",
@@ -22,7 +22,7 @@ const TIME_BANDS = [
   { id: "night", label: "夜" },
 ];
 
-export default function Reserve() {
+export default function ReserveSp() {
   const sectionRef = useRef(null);
   const triggerRef = useRef(null);
 
@@ -109,13 +109,12 @@ export default function Reserve() {
             ご予約
           </h2>
 
-          <p
-            className={`${styles.sub} ${styles.reveal}`}
-            style={{ "--d": "0.12s" }}
-          >
-            希望だけ送ってください。あとはこちらで決めます。
-          </p>
-
+<p
+  className={`${styles.sub} ${styles.reveal}`}
+  style={{ "--d": "0.12s" }}
+>
+  希望だけ送ってください。あとはこちらで決めます。
+</p>
           {/* 小さな後押し（ここが効く） */}
           <div
             className={`${styles.microRow} ${styles.reveal}`}

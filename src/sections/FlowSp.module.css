@@ -1,0 +1,462 @@
+/* =========================
+   FLOW (SP)
+   - 横はみ出し0
+   - レール1本で読む
+   - 重要文だけ刺す
+========================= */
+
+.section{
+  position: relative;
+  background: rgb(var(--bg, 250 248 244));
+  color: rgb(var(--ink, 18 18 18));
+  overflow: clip;
+
+  padding:
+    clamp(92px, 12vh, 128px)
+    0
+    clamp(92px, 12vh, 138px);
+}
+
+@supports not (overflow: clip){
+  .section{ overflow: hidden; }
+}
+
+.wrap{
+  --edge: clamp(18px, 5vw, 26px);
+  --g: 18px;
+
+  width: min(560px, 100%);
+  margin: 0 auto;
+  padding: 0 var(--edge);
+
+  position: relative;
+  isolation: isolate;
+}
+
+/* レール（紙面の背骨） */
+.rail{
+  position: absolute;
+  left: var(--edge);
+  top: clamp(10px, 2vh, 24px);
+  bottom: clamp(26px, 3vh, 42px);
+  width: 1px;
+  background: rgb(var(--ink, 18 18 18) / .12);
+  pointer-events: none;
+}
+
+/* =========================
+   Head
+========================= */
+.head{
+  padding-left: var(--g);
+}
+
+.kicker{
+  font-family: var(--font-sans, system-ui, -apple-system, "Segoe UI", sans-serif);
+  font-size: 12px;
+  letter-spacing: .22em;
+  text-transform: uppercase;
+  color: rgb(var(--ink, 18 18 18) / .62);
+}
+
+.title{
+  margin: 10px 0 0;
+  font-family: var(--font-serif);
+  font-size: clamp(26px, 7.6vw, 34px);
+  letter-spacing: .06em;
+  line-height: 1.25;
+}
+
+.lead{
+  margin: 14px 0 0;
+  font-family: var(--font-sans, system-ui, -apple-system, "Segoe UI", sans-serif);
+  font-size: 12.8px;
+  letter-spacing: .08em;
+  line-height: 1.9;
+  color: rgb(var(--ink, 18 18 18) / .84);
+  opacity: .86;
+}
+
+.facts{
+  margin-top: 14px;
+
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 10px;
+
+  font-family: var(--font-sans, system-ui, -apple-system, "Segoe UI", sans-serif);
+  font-size: 11px;
+  letter-spacing: .14em;
+  color: rgb(var(--ink, 18 18 18) / .78);
+}
+
+.dot{
+  width: 3px;
+  height: 3px;
+  border-radius: 999px;
+  background: rgb(var(--beni, 176 18 27) / .28);
+  transform: translateY(-1px);
+}
+
+/* =========================
+   Timeline
+========================= */
+.timeline{
+  list-style: none;
+  margin: 26px 0 0;
+  padding: 0 0 0 var(--g);
+
+  display: grid;
+  gap: 18px;
+}
+
+.step{
+  position: relative;
+  padding: 18px 16px 16px;
+
+  /* “紙膜” */
+  background:
+    linear-gradient(
+      180deg,
+      rgb(var(--bg, 250 248 244) / .92) 0%,
+      rgb(var(--bg, 250 248 244) / .72) 62%,
+      rgb(var(--bg, 250 248 244) / .22) 100%
+    );
+
+  border-left: 1px solid rgb(var(--beni, 176 18 27) / .16);
+}
+
+/* レール上の刻印点 */
+.step::before{
+  content:"";
+  position:absolute;
+
+  left: calc(-1 * var(--g) - 3px);
+  top: 22px;
+
+  width: 7px;
+  height: 7px;
+  border-radius: 999px;
+
+  background: rgb(var(--bg, 250 248 244) / .98);
+  border: 1px solid rgb(var(--beni, 176 18 27) / .38);
+  box-shadow: 0 6px 18px rgb(0 0 0 / .06);
+}
+
+.stepHead{
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+}
+
+.no{
+  font-family: var(--font-serif);
+  font-size: 14px;
+  letter-spacing: .16em;
+  color: rgb(var(--beni, 176 18 27) / .88);
+  min-width: 3.2ch;
+}
+
+.stepTitle{
+  margin: 0;
+  font-family: var(--font-serif);
+  font-size: 18px;
+  letter-spacing: .10em;
+  line-height: 1.35;
+}
+
+.stepLead{
+  margin: 10px 0 0;
+  font-family: var(--font-sans, system-ui, -apple-system, "Segoe UI", sans-serif);
+  font-size: 12.6px;
+  letter-spacing: .08em;
+  line-height: 1.85;
+  color: rgb(var(--ink, 18 18 18) / .90);
+  opacity: .92;
+}
+
+.desc{
+  margin: 12px 0 0;
+  padding: 0;
+  list-style: none;
+
+  display: grid;
+  gap: 8px;
+}
+
+.descItem{
+  font-family: var(--font-sans, system-ui, -apple-system, "Segoe UI", sans-serif);
+  font-size: 12.4px;
+  letter-spacing: .06em;
+  line-height: 1.8;
+  color: rgb(var(--ink, 18 18 18) / .86);
+  position: relative;
+  padding-left: 10px;
+}
+.descItem::before{
+  content:"";
+  position:absolute;
+  left: 0;
+  top: .72em;
+  width: 4px;
+  height: 1px;
+  background: rgb(var(--ink, 18 18 18) / .22);
+}
+
+/* “ここだけ刺す” */
+.fine{
+  margin: 12px 0 0;
+  padding-left: 12px;
+  position: relative;
+
+  font-family: var(--font-serif);
+  font-size: 14px;
+  letter-spacing: .08em;
+  line-height: 1.7;
+  color: rgb(var(--ink, 18 18 18) / .92);
+  opacity: .92;
+}
+.fine::before{
+  content:"";
+  position:absolute;
+  left: 0;
+  top: .55em;
+  bottom: .55em;
+  width: 1px;
+  background: rgb(var(--beni, 176 18 27) / .22);
+}
+
+/* 返却だけは“決める” */
+.fineStrong{
+  color: rgb(var(--ink, 18 18 18));
+  opacity: 1;
+}
+.fineStrong::before{
+  background: rgb(var(--beni, 176 18 27) / .44);
+}
+
+.notes{
+  margin: 12px 0 0;
+  padding: 0;
+  list-style: none;
+
+  display: grid;
+  gap: 6px;
+}
+
+.noteItem{
+  font-family: var(--font-sans, system-ui, -apple-system, "Segoe UI", sans-serif);
+  font-size: 11.8px;
+  letter-spacing: .06em;
+  line-height: 1.75;
+  color: rgb(var(--ink, 18 18 18) / .78);
+
+  padding-left: 10px;
+  position: relative;
+}
+.noteItem::before{
+  content:"";
+  position:absolute;
+  left: 0;
+  top: .78em;
+  width: 3px;
+  height: 3px;
+  border-radius: 999px;
+  background: rgb(var(--ink, 18 18 18) / .18);
+}
+
+/* =========================
+   Proofs
+========================= */
+.proofs{
+  margin-top: clamp(28px, 4vh, 48px);
+  padding-left: var(--g);
+}
+
+.proofsHead{
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+}
+
+.proofsEn{
+  font-family: var(--font-sans, system-ui, -apple-system, "Segoe UI", sans-serif);
+  font-size: 12px;
+  letter-spacing: .22em;
+  text-transform: uppercase;
+  color: rgb(var(--ink, 18 18 18) / .62);
+  position: relative;
+}
+.proofsEn::after{
+  content:"";
+  display:block;
+  height: 1px;
+  width: 48px;
+  margin-top: 10px;
+  background: rgb(var(--beni, 176 18 27) / .58);
+  opacity: .7;
+}
+
+.proofsJp{
+  font-family: var(--font-serif);
+  font-size: 12.5px;
+  letter-spacing: .10em;
+  color: rgb(var(--ink, 18 18 18) / .70);
+}
+
+.proofGrid{
+  margin-top: 16px;
+  display: grid;
+  gap: 14px;
+}
+
+.proof{
+  margin: 0;
+  width: 100%;
+  max-width: 100%;
+}
+
+.proofMedia{
+  position: relative;
+  width: 100%;
+  max-width: 100%;
+  aspect-ratio: 16 / 9;
+  overflow: hidden;
+  background: rgb(0 0 0 / .04);
+  border: 1px solid rgb(var(--ink, 18 18 18) / .10);
+}
+
+.proofImg{
+  width: 100%;
+  height: 100%;
+  display: block;
+  object-fit: cover;
+  object-position: 50% 52%;
+  filter: saturate(.92) contrast(.98);
+  opacity: .96;
+  transform: translateZ(0);
+}
+
+.proofOverlay{
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+
+  padding: 10px 12px;
+
+  background:
+    linear-gradient(
+      to top,
+      rgb(0 0 0 / .42) 0%,
+      rgb(0 0 0 / .18) 55%,
+      transparent 100%
+    );
+  color: rgb(var(--bg, 250 248 244) / .94);
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.proofChap{
+  font-family: var(--font-sans, system-ui, -apple-system, "Segoe UI", sans-serif);
+  font-size: 11px;
+  letter-spacing: .26em;
+  text-transform: uppercase;
+  opacity: .9;
+}
+
+.proofTitle{
+  font-family: var(--font-serif);
+  font-size: 13px;
+  letter-spacing: .10em;
+  opacity: .96;
+}
+
+.proofPoints{
+  margin-top: 10px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 10px;
+
+  font-family: var(--font-sans, system-ui, -apple-system, "Segoe UI", sans-serif);
+  font-size: 11.2px;
+  letter-spacing: .10em;
+  color: rgb(var(--ink, 18 18 18) / .76);
+}
+
+.proofPoint{
+  position: relative;
+  padding-left: 10px;
+}
+.proofPoint::before{
+  content:"";
+  position:absolute;
+  left: 0;
+  top: .78em;
+  width: 3px;
+  height: 3px;
+  border-radius: 999px;
+  background: rgb(var(--beni, 176 18 27) / .22);
+}
+
+/* =========================
+   Signature
+========================= */
+.bottomMark{
+  margin-top: clamp(28px, 4vh, 54px);
+  padding-left: var(--g);
+
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+  opacity: .62;
+}
+
+.smallCaps{
+  font-family: var(--font-sans, system-ui, -apple-system, "Segoe UI", sans-serif);
+  font-size: 10px;
+  letter-spacing: .24em;
+  text-transform: uppercase;
+}
+
+.beniCaps{
+  font-family: var(--font-sans, system-ui, -apple-system, "Segoe UI", sans-serif);
+  font-size: 10px;
+  letter-spacing: .24em;
+  text-transform: uppercase;
+  color: rgb(var(--beni, 176 18 27));
+}
+
+/* =========================
+   Reveal
+========================= */
+.reveal{
+  opacity: 0;
+  transform: translate3d(0, 14px, 0) scale(0.998);
+  filter: blur(0.22px);
+  will-change: opacity, transform, filter;
+
+  transition:
+    opacity .62s var(--ease-out, cubic-bezier(.22, 1, .36, 1)),
+    transform .92s var(--ease-out, cubic-bezier(.22, 1, .36, 1)),
+    filter 1.05s var(--ease-out, cubic-bezier(.22, 1, .36, 1));
+  transition-delay: var(--d, 0s);
+}
+
+.in .reveal{
+  opacity: 1;
+  transform: translate3d(0, 0, 0) scale(1);
+  filter: blur(0px);
+}
+
+@media (prefers-reduced-motion: reduce){
+  .reveal{
+    opacity: 1;
+    transform: none;
+    filter: none;
+    transition: none;
+  }
+}

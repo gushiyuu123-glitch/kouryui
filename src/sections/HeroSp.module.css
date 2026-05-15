@@ -1,0 +1,932 @@
+/* src/sections/HeroSp.module.css */
+
+.hero{
+  position: relative;
+  min-height: 100svh;
+  overflow: clip;
+  background: rgb(var(--bg, 250 248 244));
+}
+@supports not (overflow: clip){
+  .hero{ overflow: hidden; }
+}
+
+/* 背景：もっと左下へ（範囲外％で“さらに”押す） */
+.bg{
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+
+  /* ✅ ここが“もっと”の答え：負の%/100超で追い込める */
+  object-position: -18% 112%;
+
+  filter: saturate(.98) contrast(1.02);
+  transform: translateZ(0);
+  will-change: opacity, transform, filter;
+}
+
+/* 粒子 + わずかな差し色（気配） */
+.grain{
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: .88;
+  background:
+    radial-gradient(760px 520px at 14% 18%,
+      rgb(var(--ai, 22 49 74) / .045) 0%,
+      transparent 62%),
+    radial-gradient(860px 600px at 88% 84%,
+      rgb(var(--kogane, 168 139 43) / .038) 0%,
+      transparent 64%),
+    radial-gradient(900px 520px at 0% 0%,
+      rgb(255 255 255 / .12) 0%,
+      rgb(255 255 255 / 0) 58%),
+    radial-gradient(900px 520px at 100% 100%,
+      rgb(0 0 0 / .07) 0%,
+      rgb(0 0 0 / 0) 58%);
+}
+
+/* もや：上（顔）は極薄 / 下（文字）は守る */
+.veil{
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: .78;
+  will-change: opacity;
+
+  background:
+    /* 上：弱い（顔の邪魔をしない） */
+    radial-gradient(980px 720px at 58% 8%,
+      rgb(255 255 255 / .10) 0%,
+      rgb(255 255 255 / .04) 46%,
+      rgb(255 255 255 / 0) 72%),
+
+    /* 下：読むために残す（ここが“保険”） */
+    linear-gradient(to top,
+      rgb(var(--bg, 250 248 244) / .86) 0%,
+      rgb(var(--bg, 250 248 244) / .56) 30%,
+      rgb(var(--bg, 250 248 244) / .22) 56%,
+      rgb(var(--bg, 250 248 244) / 0) 78%);
+}
+
+/* 文字スタック */
+.stack{
+  position: relative;
+  min-height: 100svh;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+
+  padding:
+    calc(env(safe-area-inset-top) + 16px)
+    18px
+    calc(env(safe-area-inset-bottom) + 18px);
+}
+
+.meta{
+  margin-bottom: auto;
+  display: grid;
+  gap: 6px;
+  font-family: var(--font-sans, system-ui, -apple-system, "Segoe UI", "Hiragino Sans", "Yu Gothic", sans-serif);
+  font-size: 11px;
+  letter-spacing: .14em;
+  color: rgb(var(--ink, 26 26 26) / .62);
+}
+.metaLine{ margin: 0; }
+
+.copy{
+  padding-left: 1px;
+}
+
+.h1{
+  margin: 0;
+  font-family: var(--font-serif, "Hiragino Mincho ProN", "Yu Mincho", "游明朝", serif);
+  letter-spacing: .03em;
+  color: rgb(var(--ink, 26 26 26) / .94);
+}
+.h1Line{
+  display: block;
+  font-size: clamp(26px, 7.8vw, 34px);
+  line-height: 1.12;
+}
+
+.desc{
+  margin: 14px 0 0;
+  font-family: var(--font-sans, system-ui, -apple-system, "Segoe UI", "Hiragino Sans", "Yu Gothic", sans-serif);
+  font-size: 12px;
+  line-height: 1.9;
+  letter-spacing: .10em;
+  color: rgb(var(--ink, 26 26 26) / .68);
+}
+
+/* CTA：ボタンにしない（下線） */
+.ctaRow{
+  margin-top: 16px;
+  display: flex;
+  gap: 18px;
+  align-items: center;
+
+  font-family: var(--font-sans, system-ui, -apple-system, "Segoe UI", "Hiragino Sans", "Yu Gothic", sans-serif);
+  font-size: 13px;
+  letter-spacing: .12em;
+}
+
+.cta,
+.sub{
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  padding: 6px 2px;
+  color: rgb(var(--ink, 26 26 26) / .90);
+  text-decoration: none;
+}
+
+.cta::after{
+  content:"";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 10px;
+  height: 1px;
+  background: rgb(var(--beni, 176 18 27) / .86);
+}
+
+.sub{
+  color: rgb(var(--ink, 26 26 26) / .62);
+}
+.sub::after{
+  content:"";
+  position:absolute;
+  left:0;
+  right:0;
+  bottom: 10px;
+  height: 1px;
+  background: rgb(0 0 0 / .16);
+  transform: scaleX(.72);
+  transform-origin: left;
+}
+
+/* 署名（ロゴ降格） */
+.signature{
+  margin-top: 18px;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  opacity: .92;
+}
+
+.seal{
+  width: 22px;
+  height: 22px;
+  opacity: .92;
+  mix-blend-mode: multiply;
+}
+
+.sigText{ display: grid; gap: 2px; }
+.sigJp{
+  font-family: var(--font-serif, "Hiragino Mincho ProN", "Yu Mincho", "游明朝", serif);
+  font-size: 14px;
+  letter-spacing: .18em;
+  color: rgb(var(--ink, 26 26 26) / .86);
+}
+.sigEn{
+  font-family: var(--font-sans, system-ui, -apple-system, "Segoe UI", "Hiragino Sans", "Yu Gothic", sans-serif);
+  font-size: 10px;
+  letter-spacing: .34em;
+  text-transform: uppercase;
+  color: rgb(var(--ink, 26 26 26) / .42);
+}
+
+.scroll{
+  margin-top: 12px;
+  font-family: var(--font-sans, system-ui, -apple-system, "Segoe UI", "Hiragino Sans", "Yu Gothic", sans-serif);
+  font-size: 10px;
+  letter-spacing: .36em;
+  color: rgb(var(--ink, 26 26 26) / .34);
+}
+
+@media (prefers-reduced-motion: reduce){
+  .bg{ will-change: auto; }
+}
+.bg{
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+
+  /* 切れすぎ修正 */
+  object-position: 8% 108%;
+
+  filter: saturate(.98) contrast(1.02);
+  transform: translateZ(0);
+  will-change: opacity, transform, filter;
+}
+/* SCROLL：右下に逃がして、気配だけ残す */
+.scroll{
+  position: absolute;
+  right: 14px;
+  bottom: calc(env(safe-area-inset-bottom) + 12px);
+
+  margin: 0;
+
+  font-family: var(--font-sans, system-ui, -apple-system, "Segoe UI",
+    "Hiragino Sans", "Yu Gothic", sans-serif);
+
+  font-size: 9px;            /* 小さく */
+  letter-spacing: .42em;     /* 間隔で“気配”に */
+  color: rgb(var(--ink, 26 26 26) / .22);
+  opacity: .78;
+
+  pointer-events: none;
+  user-select: none;
+}
+
+/* うるささを消す：横線＋ドットは“超薄” */
+.scroll::before{
+  content:"";
+  display: inline-block;
+  width: 26px;
+  height: 1px;
+  background: rgb(0 0 0 / .10);
+  vertical-align: middle;
+  margin-right: 8px;
+  transform: translateY(-1px);
+}
+
+/* さらにおとなしく：極小端末は消す */
+@media (max-width: 360px){
+  .scroll{ display: none; }
+}
+/* src/sections/HeroSp.module.css
+   - SP：写真主役 / ロゴは署名（喧嘩させない）
+   - もやは「上だけ弱める / 下は床の安心で残す」
+*/
+
+.hero{
+  /* ここだけ触れば一発で追い込める（SP調整ノブ） */
+  --bg-x: 0%;
+  --bg-y: 88%;
+
+  position: relative;
+  min-height: 100svh;
+  overflow: clip;
+  background: rgb(var(--bg, 250 248 244));
+}
+@supports not (overflow: clip){
+  .hero{ overflow: hidden; }
+}
+
+/* 背景：左下に寄せる（主役を見せる） */
+.bg{
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+
+  /* ✅ ここが要：顔が切れるなら --bg-x/--bg-y を微調整 */
+  object-position: var(--bg-x) var(--bg-y);
+
+  filter: saturate(.98) contrast(1.02);
+  transform: translateZ(0);
+  will-change: opacity, transform, filter;
+}
+
+/* 粒子 + 差し色の気配（薄く） */
+.grain{
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: .88;
+
+  background:
+    radial-gradient(760px 520px at 14% 18%,
+      rgb(var(--ai, 22 49 74) / .045) 0%,
+      transparent 62%),
+    radial-gradient(860px 600px at 88% 84%,
+      rgb(var(--kogane, 168 139 43) / .038) 0%,
+      transparent 64%),
+    radial-gradient(900px 520px at 0% 0%,
+      rgb(255 255 255 / .12) 0%,
+      rgb(255 255 255 / 0) 58%),
+    radial-gradient(900px 520px at 100% 100%,
+      rgb(0 0 0 / .07) 0%,
+      rgb(0 0 0 / 0) 58%);
+}
+
+/* ✅ 上（顔）だけ弱める / 下（床）は維持 */
+.veil{
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: .82;
+  will-change: opacity;
+
+  background:
+    /* 上：顔に当てない位置へ + 強度ダウン */
+    radial-gradient(980px 720px at 52% 10%,
+      rgb(255 255 255 / .12) 0%,
+      rgb(255 255 255 / .05) 44%,
+      rgb(255 255 255 / 0) 72%),
+
+    /* 下：床（安心）は残す */
+    linear-gradient(to top,
+      rgb(var(--bg, 250 248 244) / .86) 0%,
+      rgb(var(--bg, 250 248 244) / .54) 30%,
+      rgb(var(--bg, 250 248 244) / .18) 56%,
+      rgb(var(--bg, 250 248 244) / 0) 76%),
+
+    /* 右→左：白くしすぎる原因なので短く弱く */
+    linear-gradient(to left,
+      rgb(var(--bg, 250 248 244) / .30) 0%,
+      rgb(var(--bg, 250 248 244) / .12) 32%,
+      rgb(var(--bg, 250 248 244) / 0) 58%);
+}
+
+/* コンテンツ */
+.content{
+  position: relative;
+  min-height: 100svh;
+
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  align-items: stretch;
+
+  padding:
+    calc(env(safe-area-inset-top) + 16px)
+    18px
+    calc(env(safe-area-inset-bottom) + 18px);
+}
+
+/* 右上メタ（控えめ） */
+.topMeta{
+  margin-bottom: auto;
+  display: grid;
+  gap: 6px;
+
+  font-family: var(--font-sans, system-ui, -apple-system, "Segoe UI", "Hiragino Sans", "Yu Gothic", sans-serif);
+  font-size: 11px;
+  letter-spacing: .14em;
+  color: rgb(var(--ink, 26 26 26) / .62);
+}
+.metaLine{ margin: 0; }
+
+/* ロゴ＝署名（主役にしない） */
+.logoFx{
+  --logo-mask: none;
+
+  position: relative;
+  isolation: isolate;
+
+  /* ✅ でかすぎ殺し：上限をさらに落とす */
+  width: clamp(200px, 62vw, 260px);
+
+  align-self: flex-start; /* “主役”じゃなく“左下の署名” */
+  transform: translateY(-6px);
+  margin: 0 0 8px 0;
+}
+
+/* 刷りムラ（薄く） */
+.ink{
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 2;
+
+  background:
+    radial-gradient(860px 420px at 18% 20%, rgb(0 0 0 / .18) 0%, rgb(0 0 0 / 0) 58%),
+    radial-gradient(900px 420px at 86% 74%, rgb(0 0 0 / .12) 0%, rgb(0 0 0 / 0) 62%),
+    repeating-radial-gradient(circle at 32% 38%,
+      rgb(0 0 0 / .10) 0 1px,
+      rgb(0 0 0 / 0) 1px 4px);
+
+  opacity: .07;
+  mix-blend-mode: multiply;
+  filter: blur(.65px);
+  transform: scale(1.002);
+
+  -webkit-mask-image: var(--logo-mask);
+  mask-image: var(--logo-mask);
+  -webkit-mask-repeat: no-repeat;
+  mask-repeat: no-repeat;
+  -webkit-mask-size: 100% 100%;
+  mask-size: 100% 100%;
+  -webkit-mask-position: center;
+  mask-position: center;
+}
+
+.logo{
+  width: 100%;
+  height: auto;
+  display: block;
+  user-select: none;
+  transform: translateZ(0);
+
+  /* ✅ 同色問題の解消：紅を保ったまま“暗い紅”へ */
+  filter: saturate(1.06) contrast(1.08) brightness(.82);
+}
+@supports (mix-blend-mode: multiply){
+  .logo{ mix-blend-mode: multiply; }
+}
+
+.logoFx::after{
+  content:"";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 3;
+
+  background: linear-gradient(
+    to bottom,
+    rgb(255 255 255 / .38) 0%,
+    rgb(255 255 255 / .10) 34%,
+    rgb(255 255 255 / 0) 66%
+  );
+  opacity: .54;
+  mix-blend-mode: screen;
+
+  -webkit-mask-image: var(--logo-mask);
+  mask-image: var(--logo-mask);
+  -webkit-mask-repeat: no-repeat;
+  mask-repeat: no-repeat;
+  -webkit-mask-size: 100% 100%;
+  mask-size: 100% 100%;
+  -webkit-mask-position: center;
+  mask-position: center;
+}
+
+.roman{
+  margin-top: 6px;
+  text-align: left;
+
+  font-family: var(--font-sans, system-ui, -apple-system, "Segoe UI", "Hiragino Sans", "Yu Gothic", sans-serif);
+  font-size: 10px;
+  letter-spacing: .34em;
+  text-transform: uppercase;
+  color: rgb(var(--ink, 26 26 26) / .42);
+  white-space: nowrap;
+}
+
+/* コピー */
+.copy{
+  margin-top: 6px;
+  padding-left: 2px;
+}
+
+.lead{
+  margin: 0;
+  font-family: var(--font-serif, "Hiragino Mincho ProN", "Yu Mincho", "游明朝", serif);
+  letter-spacing: .03em;
+  color: rgb(var(--ink, 26 26 26) / .94);
+}
+.leadLine{
+  display: block;
+  font-size: clamp(26px, 7.4vw, 34px);
+  line-height: 1.14;
+}
+
+.sub{
+  margin: 14px 0 0;
+  font-family: var(--font-sans, system-ui, -apple-system, "Segoe UI", "Hiragino Sans", "Yu Gothic", sans-serif);
+  font-size: 12px;
+  line-height: 1.9;
+  letter-spacing: .10em;
+  color: rgb(var(--ink, 26 26 26) / .68);
+}
+
+/* CTA：下線（朱/墨） */
+.ctaRow{
+  margin-top: 16px;
+  display: flex;
+  gap: 18px;
+  align-items: center;
+
+  font-family: var(--font-sans, system-ui, -apple-system, "Segoe UI", "Hiragino Sans", "Yu Gothic", sans-serif);
+  font-size: 13px;
+  letter-spacing: .12em;
+}
+
+.cta,
+.subLink{
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  padding: 6px 2px;
+  text-decoration: none;
+  color: rgb(var(--ink, 26 26 26) / .90);
+}
+
+.cta::after{
+  content:"";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 10px;
+  height: 1px;
+  background: rgb(var(--beni, 176 18 27) / .86);
+}
+
+.subLink{
+  color: rgb(var(--ink, 26 26 26) / .62);
+}
+.subLink::after{
+  content:"";
+  position:absolute;
+  left:0;
+  right:0;
+  bottom: 10px;
+  height: 1px;
+  background: rgb(0 0 0 / .16);
+  transform: scaleX(.72);
+  transform-origin: left;
+}
+
+.hint{
+  margin-top: 14px;
+  font-family: var(--font-sans, system-ui, -apple-system, "Segoe UI", "Hiragino Sans", "Yu Gothic", sans-serif);
+  font-size: 10px;
+  letter-spacing: .36em;
+  color: rgb(var(--ink, 26 26 26) / .38);
+}
+
+/* SCROLL：右下へ／おとなしく */
+.scroll{
+  position: absolute;
+  right: 16px;
+  bottom: calc(env(safe-area-inset-bottom) + 14px);
+
+  font-family: var(--font-sans, system-ui, -apple-system, "Segoe UI", "Hiragino Sans", "Yu Gothic", sans-serif);
+  font-size: 10px;
+  letter-spacing: .42em;
+
+  color: rgb(var(--ink, 26 26 26) / .22);
+  opacity: .55;
+  pointer-events: none;
+  user-select: none;
+
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+}
+.scroll::after{
+  content:"";
+  width: 28px;
+  height: 1px;
+  background: rgb(0 0 0 / .12);
+  opacity: .65;
+}
+
+@media (max-width: 360px){
+  .scroll{ display: none; }
+}
+
+@media (max-width: 380px){
+  .content{
+    padding:
+      calc(env(safe-area-inset-top) + 14px)
+      16px
+      calc(env(safe-area-inset-bottom) + 16px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce){
+  .bg{ will-change: auto; }
+}
+/* src/sections/HeroSp.module.css
+   - SP：写真主役 / ロゴは署名（喧嘩させない）
+   - もやは「上だけ弱める / 下は床の安心で残す」
+*/
+
+.hero{
+  /* ここだけ触れば一発で追い込める（SP調整ノブ） */
+  --bg-x: 0%;
+  --bg-y: 88%;
+
+  position: relative;
+  min-height: 100svh;
+  overflow: clip;
+  background: rgb(var(--bg, 250 248 244));
+}
+@supports not (overflow: clip){
+  .hero{ overflow: hidden; }
+}
+
+/* 背景：左下に寄せる（主役を見せる） */
+.bg{
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+
+  /* ✅ ここが要：顔が切れるなら --bg-x/--bg-y を微調整 */
+  object-position: var(--bg-x) var(--bg-y);
+
+  filter: saturate(.98) contrast(1.02);
+  transform: translateZ(0);
+  will-change: opacity, transform, filter;
+}
+
+/* 粒子 + 差し色の気配（薄く） */
+.grain{
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: .88;
+
+  background:
+    radial-gradient(760px 520px at 14% 18%,
+      rgb(var(--ai, 22 49 74) / .045) 0%,
+      transparent 62%),
+    radial-gradient(860px 600px at 88% 84%,
+      rgb(var(--kogane, 168 139 43) / .038) 0%,
+      transparent 64%),
+    radial-gradient(900px 520px at 0% 0%,
+      rgb(255 255 255 / .12) 0%,
+      rgb(255 255 255 / 0) 58%),
+    radial-gradient(900px 520px at 100% 100%,
+      rgb(0 0 0 / .07) 0%,
+      rgb(0 0 0 / 0) 58%);
+}
+
+/* ✅ 上（顔）だけ弱める / 下（床）は維持 */
+.veil{
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+
+  will-change: opacity;
+
+  opacity: .60; /* ← まずここまで落とす */
+
+  background:
+    /* 上（顔まわり）は薄く */
+    radial-gradient(960px 720px at 66% 18%,
+      rgb(255 255 255 / .14) 0%,
+      rgb(255 255 255 / .06) 52%,
+      rgb(255 255 255 / 0) 74%),
+
+    /* 下は“紙”を残す（でも薄く） */
+    linear-gradient(to top,
+      rgb(var(--bg) / .80) 0%,
+      rgb(var(--bg) / .50) 30%,
+      rgb(var(--bg) / .20) 56%,
+      rgb(var(--bg) / 0) 80%);
+}
+
+/* コンテンツ */
+.content{
+  position: relative;
+  min-height: 100svh;
+
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  align-items: stretch;
+
+  padding:
+    calc(env(safe-area-inset-top) + 16px)
+    18px
+    calc(env(safe-area-inset-bottom) + 18px);
+}
+
+/* 右上メタ（控えめ） */
+.topMeta{
+  margin-bottom: auto;
+  display: grid;
+  gap: 6px;
+
+  font-family: var(--font-sans, system-ui, -apple-system, "Segoe UI", "Hiragino Sans", "Yu Gothic", sans-serif);
+  font-size: 11px;
+  letter-spacing: .14em;
+  color: rgb(var(--ink, 26 26 26) / .62);
+}
+.metaLine{ margin: 0; }
+
+/* ロゴ＝署名（主役にしない） */
+.logoFx{
+  --logo-mask: none;
+
+  position: relative;
+  isolation: isolate;
+
+  /* ✅ でかすぎ殺し：上限をさらに落とす */
+  width: clamp(200px, 62vw, 260px);
+
+  align-self: flex-start; /* “主役”じゃなく“左下の署名” */
+  transform: translateY(-6px);
+  margin: 0 0 8px 0;
+}
+
+/* 刷りムラ（薄く） */
+.ink{
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 2;
+
+  background:
+    radial-gradient(860px 420px at 18% 20%, rgb(0 0 0 / .18) 0%, rgb(0 0 0 / 0) 58%),
+    radial-gradient(900px 420px at 86% 74%, rgb(0 0 0 / .12) 0%, rgb(0 0 0 / 0) 62%),
+    repeating-radial-gradient(circle at 32% 38%,
+      rgb(0 0 0 / .10) 0 1px,
+      rgb(0 0 0 / 0) 1px 4px);
+
+  opacity: .07;
+  mix-blend-mode: multiply;
+  filter: blur(.65px);
+  transform: scale(1.002);
+
+  -webkit-mask-image: var(--logo-mask);
+  mask-image: var(--logo-mask);
+  -webkit-mask-repeat: no-repeat;
+  mask-repeat: no-repeat;
+  -webkit-mask-size: 100% 100%;
+  mask-size: 100% 100%;
+  -webkit-mask-position: center;
+  mask-position: center;
+}
+
+.logo{
+  width: 100%;
+  height: auto;
+  display: block;
+  user-select: none;
+  transform: translateZ(0);
+
+  /* ✅ 同色問題の解消：紅を保ったまま“暗い紅”へ */
+  filter: saturate(1.06) contrast(1.08) brightness(.82);
+}
+@supports (mix-blend-mode: multiply){
+  .logo{ mix-blend-mode: multiply; }
+}
+
+.logoFx::after{
+  content:"";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 3;
+
+  background: linear-gradient(
+    to bottom,
+    rgb(255 255 255 / .38) 0%,
+    rgb(255 255 255 / .10) 34%,
+    rgb(255 255 255 / 0) 66%
+  );
+  opacity: .54;
+  mix-blend-mode: screen;
+
+  -webkit-mask-image: var(--logo-mask);
+  mask-image: var(--logo-mask);
+  -webkit-mask-repeat: no-repeat;
+  mask-repeat: no-repeat;
+  -webkit-mask-size: 100% 100%;
+  mask-size: 100% 100%;
+  -webkit-mask-position: center;
+  mask-position: center;
+}
+
+.roman{
+  margin-top: 6px;
+  text-align: left;
+
+  font-family: var(--font-sans, system-ui, -apple-system, "Segoe UI", "Hiragino Sans", "Yu Gothic", sans-serif);
+  font-size: 10px;
+  letter-spacing: .34em;
+  text-transform: uppercase;
+  color: rgb(var(--ink, 26 26 26) / .42);
+  white-space: nowrap;
+}
+
+/* コピー */
+.copy{
+  margin-top: 6px;
+  padding-left: 2px;
+}
+
+.lead{
+  margin: 0;
+  font-family: var(--font-serif, "Hiragino Mincho ProN", "Yu Mincho", "游明朝", serif);
+  letter-spacing: .03em;
+  color: rgb(var(--ink, 26 26 26) / .94);
+}
+.leadLine{
+  display: block;
+  font-size: clamp(26px, 7.4vw, 34px);
+  line-height: 1.14;
+}
+
+.sub{
+  margin: 14px 0 0;
+  font-family: var(--font-sans, system-ui, -apple-system, "Segoe UI", "Hiragino Sans", "Yu Gothic", sans-serif);
+  font-size: 12px;
+  line-height: 1.9;
+  letter-spacing: .10em;
+  color: rgb(var(--ink, 26 26 26) / .68);
+}
+
+/* CTA：下線（朱/墨） */
+.ctaRow{
+  margin-top: 16px;
+  display: flex;
+  gap: 18px;
+  align-items: center;
+
+  font-family: var(--font-sans, system-ui, -apple-system, "Segoe UI", "Hiragino Sans", "Yu Gothic", sans-serif);
+  font-size: 13px;
+  letter-spacing: .12em;
+}
+
+.cta,
+.subLink{
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  padding: 6px 2px;
+  text-decoration: none;
+  color: rgb(var(--ink, 26 26 26) / .90);
+}
+
+.cta::after{
+  content:"";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 10px;
+  height: 1px;
+  background: rgb(var(--beni, 176 18 27) / .86);
+}
+
+.subLink{
+  color: rgb(var(--ink, 26 26 26) / .62);
+}
+.subLink::after{
+  content:"";
+  position:absolute;
+  left:0;
+  right:0;
+  bottom: 10px;
+  height: 1px;
+  background: rgb(0 0 0 / .16);
+  transform: scaleX(.72);
+  transform-origin: left;
+}
+
+.hint{
+  margin-top: 14px;
+  font-family: var(--font-sans, system-ui, -apple-system, "Segoe UI", "Hiragino Sans", "Yu Gothic", sans-serif);
+  font-size: 10px;
+  letter-spacing: .36em;
+  color: rgb(var(--ink, 26 26 26) / .38);
+}
+
+/* SCROLL：右下へ／おとなしく */
+.scroll{
+  position: absolute;
+  right: 16px;
+  bottom: calc(env(safe-area-inset-bottom) + 14px);
+
+  font-family: var(--font-sans, system-ui, -apple-system, "Segoe UI", "Hiragino Sans", "Yu Gothic", sans-serif);
+  font-size: 10px;
+  letter-spacing: .42em;
+
+  color: rgb(var(--ink, 26 26 26) / .22);
+  opacity: .55;
+  pointer-events: none;
+  user-select: none;
+
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+}
+.scroll::after{
+  content:"";
+  width: 28px;
+  height: 1px;
+  background: rgb(0 0 0 / .12);
+  opacity: .65;
+}
+
+@media (max-width: 360px){
+  .scroll{ display: none; }
+}
+
+@media (max-width: 380px){
+  .content{
+    padding:
+      calc(env(safe-area-inset-top) + 14px)
+      16px
+      calc(env(safe-area-inset-bottom) + 16px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce){
+  .bg{ will-change: auto; }
+}

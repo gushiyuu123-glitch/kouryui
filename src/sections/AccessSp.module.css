@@ -1,0 +1,464 @@
+/* src/sections/AccessSp.module.css
+   SP / ACCESS
+   - MAPを主役にして迷いを殺す
+   - 線と段差で“紙面”として読ませる
+*/
+
+.section{
+  position: relative;
+  background: rgb(var(--bg, 250 248 244));
+  color: rgb(var(--ink, 18 18 18));
+  overflow: clip;
+
+  padding-top: clamp(88px, 10vh, 128px);
+  padding-bottom: clamp(92px, 11vh, 140px);
+}
+
+@supports not (overflow: clip){
+  .section{ overflow: hidden; }
+}
+
+/* うっすら紙面の気配（やりすぎない） */
+.section::before{
+  content:"";
+  position:absolute;
+  inset:0;
+  pointer-events:none;
+  z-index:0;
+  background:
+    radial-gradient(920px 520px at 18% 10%,
+      rgb(255 255 255 / .72) 0%,
+      rgb(255 255 255 / 0) 58%),
+    radial-gradient(820px 540px at 84% 32%,
+      rgb(0 0 0 / .035) 0%,
+      transparent 62%);
+  opacity: .92;
+}
+
+/* 斜線は“編集感”の薄い気配 */
+.section::after{
+  content:"";
+  position:absolute;
+  inset:-2px;
+  pointer-events:none;
+  z-index:0;
+  opacity:.045;
+  background:
+    repeating-linear-gradient(
+      112deg,
+      rgb(var(--ink, 18 18 18) / 1) 0 1px,
+      transparent 1px 34px
+    );
+  mask-image:
+    radial-gradient(980px 520px at 52% 10%,
+      #000 0%,
+      #000 62%,
+      transparent 92%);
+}
+
+.wrap{
+  position: relative;
+  z-index: 1;
+
+  --edge: clamp(16px, 5vw, 26px);
+
+  width: 100%;
+  max-width: 620px;
+  margin: 0 auto;
+  padding: 0 var(--edge);
+
+  display: grid;
+  gap: clamp(18px, 2.6vh, 28px);
+
+  /* 横はみ出し殺し */
+  min-width: 0;
+}
+
+.reveal{
+  opacity: 0;
+  transform: translate3d(0, 18px, 0) scale(0.995);
+  filter: blur(0.25px);
+  will-change: opacity, transform, filter;
+
+  transition:
+    opacity .62s var(--ease-out, cubic-bezier(.16,1,.3,1)),
+    transform 1.05s var(--ease-out, cubic-bezier(.16,1,.3,1)),
+    filter 1.05s var(--ease-out, cubic-bezier(.16,1,.3,1));
+  transition-delay: var(--d, 0s);
+}
+.in .reveal{
+  opacity: 1;
+  transform: translate3d(0,0,0) scale(1);
+  filter: blur(0px);
+}
+@media (prefers-reduced-motion: reduce){
+  .reveal{ transition:none; opacity:1; transform:none; filter:none; }
+}
+
+/* =========================
+   MAP（主役）
+========================= */
+.right{ min-width: 0; }
+
+.mapStage{
+  position: relative;
+  overflow: hidden;
+  background: #000;
+
+  /* SPは“横幅いっぱいの写真”が勝つ */
+  margin: 0 calc(var(--edge) * -1);
+  height: clamp(320px, 64vw, 440px);
+
+  box-shadow: 0 18px 44px rgb(0 0 0 / .08);
+}
+
+.mapImg{
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+
+  opacity: .98;
+  filter: saturate(.92) contrast(.96) brightness(1.03);
+}
+
+/* 写真に薄い膜（blur禁止） */
+.mapStage::after{
+  content:"";
+  position:absolute;
+  inset:0;
+  pointer-events:none;
+  background:
+    radial-gradient(820px 420px at 74% 16%,
+      rgb(255 255 255 / .52) 0%,
+      transparent 62%),
+    linear-gradient(to top,
+      rgb(0 0 0 / .14) 0%,
+      rgb(0 0 0 / .04) 42%,
+      rgb(0 0 0 / 0) 72%);
+  opacity: .58;
+}
+
+/* MAPスタンプ（端末幅で絶対はみ出さない） */
+.mapCard{
+  position:absolute;
+  left: 14px;
+  right: 14px;
+  bottom: 14px;
+  z-index: 2;
+
+  display: block;
+  text-decoration: none;
+  color: rgb(var(--bg) / .92);
+
+  padding: 14px 14px 12px;
+
+  background:
+    linear-gradient(
+      90deg,
+      rgb(12 10 12 / .58) 0%,
+      rgb(12 10 12 / .18) 64%,
+      transparent 100%
+    );
+
+  border-left: 1px solid rgb(var(--beni, 176 18 27) / .55);
+}
+
+.mapCardTop{
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.mapKicker{
+  font-family: var(--font-sans, system-ui, -apple-system, "Segoe UI", sans-serif);
+  font-size: 11px;
+  letter-spacing: .26em;
+  text-transform: uppercase;
+  color: rgb(var(--bg) / .84);
+}
+.mapRule{
+  flex: 1;
+  height: 1px;
+  background: linear-gradient(
+    90deg,
+    rgb(var(--beni, 176 18 27) / .46),
+    rgb(var(--bg) / .10)
+  );
+  opacity: .9;
+}
+
+.mapCardTitle{
+  margin-top: 10px;
+  font-family: var(--font-serif);
+  font-size: 16px;
+  letter-spacing: .16em;
+  text-transform: uppercase;
+  text-shadow: 0 1px 0 rgb(0 0 0 / .26);
+}
+
+.mapCardSub{
+  margin-top: 8px;
+  font-family: var(--font-sans, system-ui, -apple-system, "Segoe UI", sans-serif);
+  font-size: 12.5px;
+  letter-spacing: .06em;
+  line-height: 1.7;
+  color: rgb(var(--bg) / .78);
+}
+
+.mapCardLink{
+  margin-top: 10px;
+  font-family: var(--font-sans, system-ui, -apple-system, "Segoe UI", sans-serif);
+  font-size: 12.5px;
+  letter-spacing: .08em;
+  color: rgb(var(--bg) / .80);
+}
+.arrow{ opacity: .85; }
+
+/* =========================
+   LEFT（情報）
+========================= */
+.left{ min-width: 0; }
+
+.head{ margin: 0; }
+
+.kicker{
+  font-family: var(--font-sans, system-ui, -apple-system, "Segoe UI", sans-serif);
+  font-size: 11px;
+  letter-spacing: .26em;
+  text-transform: uppercase;
+  color: rgb(var(--beni, 176 18 27));
+
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+}
+.kicker::after{
+  content:"";
+  width: 44px;
+  height: 1px;
+  background: rgb(var(--beni, 176 18 27) / .65);
+}
+
+.title{
+  margin: 14px 0 0;
+  font-family: var(--font-serif);
+  font-size: clamp(28px, 7.2vw, 36px);
+  letter-spacing: .10em;
+  line-height: 1.18;
+}
+
+.sub{
+  margin: 10px 0 0;
+  font-family: var(--font-sans, system-ui, -apple-system, "Segoe UI", sans-serif);
+  font-size: 12.5px;
+  letter-spacing: .10em;
+  color: rgb(var(--ink) / .70);
+}
+
+.blocks{
+  margin-top: 18px;
+  display: grid;
+  gap: 18px;
+}
+
+.block{
+  padding-top: 16px;
+  border-top: 1px solid rgb(var(--ink) / .12);
+}
+
+.blockHead{
+  display: grid;
+  grid-template-columns: 14px 44px 1fr;
+  align-items: baseline;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+
+.mark{
+  width: 14px;
+  height: 1px;
+  background: rgb(var(--beni, 176 18 27) / .70);
+  transform: translateY(9px);
+}
+
+.no{
+  font-family: var(--font-sans, system-ui, -apple-system, "Segoe UI", sans-serif);
+  font-size: 12px;
+  letter-spacing: .22em;
+  color: rgb(var(--beni, 176 18 27));
+  font-variant-numeric: tabular-nums;
+}
+
+.h3{
+  margin: 0;
+  font-family: var(--font-serif);
+  font-size: 16px;
+  letter-spacing: .12em;
+  color: rgb(var(--ink) / .88);
+}
+
+.rows{
+  display: grid;
+  gap: 10px;
+  padding-left: 0;
+}
+
+.row{
+  display: grid;
+  grid-template-columns: 5.2em 1fr;
+  gap: 12px;
+  align-items: start;
+}
+
+.rowLabel{
+  font-family: var(--font-sans, system-ui, -apple-system, "Segoe UI", sans-serif);
+  font-size: 11px;
+  letter-spacing: .18em;
+  color: rgb(var(--ink) / .60);
+  white-space: nowrap;
+}
+
+.rowText{
+  font-family: var(--font-sans, system-ui, -apple-system, "Segoe UI", sans-serif);
+  font-size: 13.2px;
+  letter-spacing: .06em;
+  line-height: 1.85;
+  color: rgb(var(--ink) / .78);
+  min-width: 0;
+}
+
+/* 行き方 */
+.routeList{
+  padding-left: 0;
+  display: grid;
+  gap: 14px;
+}
+
+.route{
+  display: grid;
+  grid-template-columns: 26px 1fr;
+  gap: 12px;
+  align-items: start;
+
+  padding: 12px 0;
+  border-top: 1px dashed rgb(var(--ink) / .12);
+}
+.route:first-child{ border-top: none; padding-top: 0; }
+
+.icon{
+  color: rgb(var(--beni, 176 18 27));
+  opacity: .9;
+}
+.svg{ width: 22px; height: 22px; }
+
+.routeText{ min-width: 0; }
+.routeTitle{
+  font-family: var(--font-sans, system-ui, -apple-system, "Segoe UI", sans-serif);
+  font-size: 12px;
+  letter-spacing: .14em;
+  color: rgb(var(--ink) / .74);
+}
+.routeLine{
+  margin-top: 6px;
+  font-family: var(--font-sans, system-ui, -apple-system, "Segoe UI", sans-serif);
+  font-size: 13.2px;
+  letter-spacing: .06em;
+  line-height: 1.85;
+  color: rgb(var(--ink) / .78);
+}
+
+/* 逃げ道1行 */
+.help{
+  margin-top: 14px;
+  font-family: var(--font-sans, system-ui, -apple-system, "Segoe UI", sans-serif);
+  font-size: 12.5px;
+  letter-spacing: .06em;
+  color: rgb(var(--ink) / .62);
+}
+
+/* =========================
+   BOTTOM（2枠 + CTA）
+========================= */
+.bottom{
+  margin-top: 18px;
+
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0;
+
+  border-top: 1px solid rgb(var(--ink) / .12);
+  background: rgb(255 255 255 / .38);
+}
+
+.bottomItem{
+  display: grid;
+  grid-template-columns: 26px 1fr;
+  gap: 10px;
+  padding: 14px 14px;
+  align-items: center;
+  min-width: 0;
+}
+.bottomItem + .bottomItem{
+  border-left: 1px solid rgb(var(--ink) / .10);
+}
+
+.bottomIcon{
+  color: rgb(var(--beni, 176 18 27));
+  opacity: .9;
+}
+.svgSm{ width: 20px; height: 20px; }
+
+.bottomText{ min-width: 0; }
+.bottomLabel{
+  font-family: var(--font-sans, system-ui, -apple-system, "Segoe UI", sans-serif);
+  font-size: 11px;
+  letter-spacing: .22em;
+  color: rgb(var(--ink) / .60);
+  white-space: nowrap;
+}
+.bottomStrong{
+  margin-top: 6px;
+  font-family: var(--font-serif);
+  font-size: 13.5px;
+  letter-spacing: .10em;
+  color: rgb(var(--ink) / .86);
+
+  /* はみ出し保険 */
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* CTA：赤ベタで殴らない。朱印の“罫線”で押す */
+.cta{
+  grid-column: 1 / -1;
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+
+  padding: 16px 14px;
+  text-decoration: none;
+
+  color: rgb(var(--ink) / .90);
+  background:
+    linear-gradient(90deg,
+      rgb(var(--bg) / .92) 0%,
+      rgb(var(--bg) / .72) 70%,
+      transparent 100%);
+
+  border-top: 1px solid rgb(var(--ink) / .10);
+  border-left: 1px solid rgb(var(--beni, 176 18 27) / .55);
+
+  font-family: var(--font-sans, system-ui, -apple-system, "Segoe UI", sans-serif);
+  font-size: 13px;
+  letter-spacing: .12em;
+}
+
+.ctaArrow{ opacity: .80; }
+
+/* iPhone SEあたりだけ微調整 */
+@media (max-width: 360px){
+  .bottomStrong{ font-size: 13px; }
+  .mapCardTitle{ font-size: 15px; }
+}

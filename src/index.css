@@ -22,7 +22,7 @@
   --ai:     22 49 74;    /* 藍 */
   --kogane: 168 139 43;  /* 黄金 */
 
-  /* “使う時の濃度”を固定（撒きすぎ防止） */
+  /* "使う時の濃度"を固定（撒きすぎ防止） */
   --ai-a: .72;
   --kogane-a: .78;
 
@@ -37,7 +37,7 @@
   --sec-top: clamp(110px, 12vh, 180px);
   --sec-bot: clamp(96px, 10vh, 160px);
 
-  /* 罫線の基準（alphaは各所で調整しても“揺れない”） */
+  /* 罫線の基準（alphaは各所で調整しても"揺れない"） */
   --a-line: .12;
   --a-dash: .16;
 
@@ -68,26 +68,25 @@
   --ease-out: cubic-bezier(.22, 1, .36, 1);
 
   /* =========================
-     Scrollbar (paper / ink / beni)
-     - 普段：墨の気配
-     - hover：ほんのり紅
-     - active：紅が滲む
+     Scrollbar
+     - 普段：紅（薄め）
+     - hover：紅（中）
+     - active：紅（濃）
   ========================== */
   --sb-track: transparent;
 
-  /* ✅ 普段は墨（ここが思想に一致） */
-  --sb-thumb:        rgb(var(--ink) / .14);
-  --sb-thumb-hover:  rgb(var(--ink) / .18);
-  --sb-thumb-active: rgb(var(--beni) / .52);
+  --sb-thumb:        rgb(var(--beni) / .28);
+  --sb-thumb-hover:  rgb(var(--beni) / .52);
+  --sb-thumb-active: rgb(var(--beni) / .82);
 }
 
-/* color-mix 対応環境だけ、hoverを“墨→紅”で混ぜる */
+/* color-mix 対応環境：hover を少し明るく */
 @supports (color: color-mix(in srgb, #000, #fff)){
   :root{
     --sb-thumb-hover: color-mix(
       in srgb,
-      rgb(var(--ink) / .18) 70%,
-      rgb(var(--beni) / .28)
+      rgb(var(--beni) / .52) 80%,
+      rgb(255 255 255 / .20)
     );
   }
 }
@@ -122,33 +121,28 @@ body{
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 
-  /* 横スクロール事故を殺す（圧の押し出し構図の保険） */
   overflow-x: clip;
 }
 @supports not (overflow: clip){
   body{ overflow-x: hidden; }
 }
 
-/* rootは独立スタッキング（overlay事故防止） */
 #root{
   min-height: 100%;
   isolation: isolate;
 }
 
-/* selection：紅を薄く（主張しない） */
 ::selection{
   background: rgb(var(--beni) / .14);
   color: rgb(var(--ink));
 }
 
-/* media */
 img, svg, video, canvas{
   max-width: 100%;
   display: block;
 }
 img{ height: auto; }
 
-/* hairline */
 hr{
   border: 0;
   height: 1px;
@@ -156,7 +150,6 @@ hr{
   margin: 0;
 }
 
-/* links */
 a{
   color: inherit;
   text-decoration: none;
@@ -167,7 +160,6 @@ a:focus-visible{
   border-radius: 2px;
 }
 
-/* forms */
 button, input, textarea, select{
   font: inherit;
   color: inherit;
@@ -205,8 +197,6 @@ button:focus-visible{
 ::-webkit-scrollbar-thumb{
   background: var(--sb-thumb);
   border-radius: 999px;
-
-  /* “紙の上に浮いてる感” */
   border: 3px solid rgb(var(--bg));
 }
 ::-webkit-scrollbar-thumb:hover{
@@ -219,7 +209,6 @@ button:focus-visible{
   background: transparent;
 }
 
-/* reduced motion：CSS側だけ止める（GSAPはJS側の分岐で） */
 @media (prefers-reduced-motion: reduce){
   html{ scroll-behavior: auto !important; }
   *{
@@ -231,12 +220,10 @@ button:focus-visible{
 
 /* =========================
    Accent utility (慎重運用)
-   - 使うのは “案内/状態/価格” に限定
 ========================== */
 .cAi{ color: rgb(var(--ai) / var(--ai-a)); }
 .cKogane{ color: rgb(var(--kogane) / var(--kogane-a)); }
 
-/* “リンク風”にしたい時だけ使う（全リンクは染めない） */
 .uLinkAi{
   color: rgb(var(--ai) / .76);
   text-decoration: underline;
@@ -246,7 +233,4 @@ button:focus-visible{
 .uLinkAi:hover{
   color: rgb(var(--ai) / .90);
   text-decoration-color: rgb(var(--beni) / .28);
-}
-:root{
-  --kogane: 168 139 43; /* 例：今の cKogane と同系統 */
 }

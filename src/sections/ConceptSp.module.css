@@ -1,0 +1,181 @@
+/* src/sections/ConceptSp.module.css */
+
+/* =========================
+   SP / CONCEPT（mobile-first）
+   - 可読幅を取り戻す
+   - 1文字落ちを潰す
+   - “二重グラデ”を根絶（←今回）
+========================= */
+
+.section{
+  position: relative;
+  color: rgb(var(--ink, 18 18 18));
+
+  /* ここは上に伸ばす必要がないので clip でOK */
+  overflow: clip;
+
+  /* ✅ 二重グラデをやめる：セクション背景に“上の紅気配”を一本化 */
+  background:
+    linear-gradient(to bottom,
+      rgb(var(--beni, 176 18 27) / .08) 0px,
+      rgb(var(--bg, 250 248 244)) 140px),
+    rgb(var(--bg, 250 248 244));
+
+  /* ✅ 上の“変な余白”が出やすいので少しだけ詰める（呼吸は残す） */
+  padding:
+    clamp(84px, 11vh, 118px)
+    0
+    clamp(82px, 10vh, 118px);
+}
+
+@supports not (overflow: clip){
+  .section{ overflow: hidden; }
+}
+
+.wrap{
+  width: min(560px, 100%);
+  margin: 0 auto;
+  padding: 0 clamp(18px, 5vw, 26px);
+}
+
+.right{
+  position: relative;
+  width: 100%;
+
+  /* ✅ PC骨格を捨てて、SPの可読幅を最大化 */
+  padding-left: 18px;
+}
+
+/* 左のレール（紙面の背骨） */
+.right::before{
+  content:"";
+  position:absolute;
+  left: 0;
+  top: -10px;
+  bottom: -14px;
+  width: 1px;
+  background: rgb(var(--line, 0 0 0) / .12);
+}
+
+/* ✅ ここが“二重グラデ”の原因だったので撤去
+.right::after{ ... }
+*/
+
+/* ---- LABEL ---- */
+.label{
+  margin: 0;
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+}
+
+.en{
+  font-family: var(--font-sans, system-ui, -apple-system, "Segoe UI", sans-serif);
+  font-size: 12px;
+  letter-spacing: .22em;
+  text-transform: uppercase;
+  color: rgb(var(--ink, 18 18 18) / .62);
+  position: relative;
+}
+.en::after{
+  content:"";
+  display:block;
+  height: 1px;
+  margin-top: 10px;
+  width: 54px;
+  background: rgb(var(--beni, 176 18 27) / .62);
+  opacity: .8;
+}
+
+.jp{
+  font-family: var(--font-serif);
+  font-size: 12.5px;
+  letter-spacing: .10em;
+  color: rgb(var(--ink, 18 18 18) / .70);
+}
+
+/* ---- STATEMENTS ---- */
+.statements{
+  margin-top: 22px;
+}
+
+.line{
+  margin: 0;
+  font-family: var(--font-serif);
+
+  /* ✅ 1文字落ち対策：ほんの少しだけ小さく＆trackingも詰める */
+  font-size: clamp(20px, 6.0vw, 28px);
+  letter-spacing: .028em;
+
+  line-height: 1.62;
+  line-break: strict;
+}
+
+@supports (text-wrap: balance){
+  .line{ text-wrap: balance; }
+}
+
+/* iPhone SEあたりの最悪幅だけ、さらに事故率を下げる */
+@media (max-width: 360px){
+  .line{
+    font-size: clamp(19px, 5.9vw, 26px);
+    letter-spacing: .024em;
+  }
+}
+
+.keep{ white-space: nowrap; }
+
+.indent{
+  padding-left: 1.1em;
+  opacity: .92;
+}
+
+.line + .line{ margin-top: 22px; }
+.line:nth-child(3){ margin-top: 28px; }
+
+.beni{ color: rgb(var(--beni, 176 18 27)); }
+
+/* ---- BRIDGE（注釈） ---- */
+.bridge{
+  margin: 34px 0 0;
+  position: relative;
+  padding-left: 12px;
+
+  font-family: var(--font-sans, system-ui, -apple-system, "Segoe UI", sans-serif);
+  font-size: 12.5px;
+  letter-spacing: .10em;
+  line-height: 1.8;
+
+  color: rgb(var(--ink, 18 18 18) / .84);
+  opacity: .78;
+}
+.bridge::before{
+  content:"";
+  position:absolute;
+  left: 0;
+  top: .35em;
+  bottom: .35em;
+  width: 1px;
+  background: rgb(var(--line, 0 0 0) / .14);
+}
+
+/* =========================
+   REVEAL（既存思想維持）
+========================= */
+.reveal{
+  opacity: 0;
+  transform: translate3d(0, 14px, 0) scale(0.998);
+  will-change: opacity, transform;
+  transition:
+    opacity .62s var(--ease-out, cubic-bezier(.22, 1, .36, 1)),
+    transform .62s var(--ease-out, cubic-bezier(.22, 1, .36, 1));
+  transition-delay: var(--d, 0s);
+}
+.in .reveal{
+  opacity: 1;
+  transform: translate3d(0, 0, 0) scale(1);
+}
+
+@media (prefers-reduced-motion: reduce){
+  .reveal{ opacity: 1; transform: none; transition: none; }
+}
