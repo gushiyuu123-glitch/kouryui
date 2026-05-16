@@ -35,9 +35,6 @@ function focusNoScroll(el) {
     el.focus?.();
   }
 
-  // preventScroll が効かない環境（主にモバイルSafari）対策。
-  // Safariのfocus起因スクロールは非同期で発火するため、
-  // rAFを2段重ねてスクロール後に位置を戻す。
   requestAnimationFrame(() => {
     requestAnimationFrame(() => {
       if (Math.abs(window.scrollY - y) > 2) {
@@ -63,7 +60,6 @@ export default function HeaderSp() {
 
   const closeMenu = () => {
     setMenuOpen(false);
-    // 閉じたら朱印へ戻す（スクロールは動かさない）
     requestAnimationFrame(() => focusNoScroll(menuButtonRef.current));
   };
 
@@ -83,7 +79,6 @@ export default function HeaderSp() {
       return;
     }
 
-    // SPはバーが無いので浅めでOK（余白だけ残す）
     const navOffset = 18;
 
     const targetTop =
@@ -105,7 +100,7 @@ export default function HeaderSp() {
       raf = 0;
 
       const y = window.scrollY;
-      const heroLine = window.innerHeight * 0.72; // SPは少し深め
+      const heroLine = window.innerHeight * 0.72;
       setPastHero(y > heroLine);
 
       const sampleY = Math.min(window.innerHeight * 0.46, 460);
@@ -143,38 +138,40 @@ export default function HeaderSp() {
   }, [sectionIds]);
 
   // body lock
+  // -------------------------------------------------------
+  // overflow:hidden だとモバイルSafariがscrollYを0にリセットする。
+  // position:fixed + top:-scrollY 方式で現在位置を保持する。
+  // クリーンアップ時に scrollTo で元の位置に戻す。
+  // -------------------------------------------------------
   useEffect(() => {
     const body = document.body;
-    const originalOverflow = body.style.overflow;
-    const originalPaddingRight = body.style.paddingRight;
 
     if (menuOpen) {
+      const scrollY = window.scrollY;
       const sbw = window.innerWidth - document.documentElement.clientWidth;
 
-      body.style.overflow = "hidden";
+      body.style.position = "fixed";
+      body.style.top = `-${scrollY}px`;
+      body.style.width = "100%";
+      body.style.overflowY = "scroll"; // スクロールバー幅を維持してがたつき防止
       if (sbw > 0) body.style.paddingRight = `${sbw}px`;
 
       const timer = window.setTimeout(() => {
         const firstLink = panelRef.current?.querySelector("a");
-        // 開いた瞬間に "勝手にトップへ飛ぶ" 主因はこれ（focusによるスクロール）
-        // → focusNoScroll 内の rAF 2段重ねで打ち消す
         focusNoScroll(firstLink);
       }, 220);
 
       return () => {
         window.clearTimeout(timer);
-        body.style.overflow = originalOverflow;
-        body.style.paddingRight = originalPaddingRight;
+        body.style.position = "";
+        body.style.top = "";
+        body.style.width = "";
+        body.style.overflowY = "";
+        body.style.paddingRight = "";
+        // 閉じたとき元の位置に戻す
+        window.scrollTo({ top: scrollY, behavior: "auto" });
       };
     }
-
-    body.style.overflow = originalOverflow;
-    body.style.paddingRight = originalPaddingRight;
-
-    return () => {
-      body.style.overflow = originalOverflow;
-      body.style.paddingRight = originalPaddingRight;
-    };
   }, [menuOpen]);
 
   // focus trap + Esc
@@ -273,7 +270,7 @@ export default function HeaderSp() {
           onClick={closeMenu}
         />
 
-        {/* 朱のにじみ輪（別作品化ポイント） */}
+        {/* 朱のにじみ輪 */}
         <div className={styles.bleed} aria-hidden="true" />
 
         <aside
