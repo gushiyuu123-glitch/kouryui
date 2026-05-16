@@ -1,4 +1,4 @@
-import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import styles from "./HeaderSp.module.css";
 
 const SIRUSI = "/sirusi.svg";
@@ -20,6 +20,26 @@ function prefersReducedMotion() {
   return window.matchMedia?.("(prefers-reduced-motion: reduce)")?.matches;
 }
 
+/**
+ * focus() が「要素を画面内に入れよう」としてスクロールを勝手に動かすことがある。
+ * preventScroll を使い、効かない環境では “飛んだら戻す” で止める。
+ */
+function focusNoScroll(el) {
+  if (!el) return;
+  const y = window.scrollY;
+
+  try {
+    el.focus({ preventScroll: true });
+  } catch {
+    el.focus?.();
+  }
+
+  // preventScroll が効かない環境（主にモバイルSafari）対策
+  if (Math.abs(window.scrollY - y) > 2) {
+    window.scrollTo({ top: y, behavior: "auto" });
+  }
+}
+
 export default function HeaderSp() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [pastHero, setPastHero] = useState(false);
@@ -29,20 +49,15 @@ export default function HeaderSp() {
   const panelRef = useRef(null);
   const overlayRef = useRef(null);
 
-  // ✅ 開く瞬間の scrollY を“即”保存（ここが最重要）
-  const openScrollYRef = useRef(0);
-
-  // ✅ 閉じた後に走らせるスクロール
-  const pendingScrollRef = useRef(null);
-
   const sectionIds = useMemo(
     () => navItems.map((i) => getIdFromHref(i.href)).filter(Boolean),
     []
   );
 
   const closeMenu = () => {
-    pendingScrollRef.current = null;
     setMenuOpen(false);
+    // 閉じたら朱印へ戻す（スクロールは動かさない）
+    requestAnimationFrame(() => focusNoScroll(menuButtonRef.current));
   };
 
   const scrollToHref = (event, href) => {
@@ -52,28 +67,30 @@ export default function HeaderSp() {
     event.preventDefault();
 
     const target = document.getElementById(id);
+
+    setMenuOpen(false);
     setActiveId(id);
 
-    window.history.pushState(null, "", href);
-
     if (!target) {
-      setMenuOpen(false);
+      window.history.pushState(null, "", href);
       return;
     }
 
+    // SPはバーが無いので浅めでOK（余白だけ残す）
     const navOffset = 18;
-    const baseY = menuOpen ? openScrollYRef.current : window.scrollY;
-    const targetTop = target.getBoundingClientRect().top + baseY - navOffset;
 
-    pendingScrollRef.current = {
+    const targetTop =
+      target.getBoundingClientRect().top + window.scrollY - navOffset;
+
+    window.history.pushState(null, "", href);
+
+    window.scrollTo({
       top: Math.max(0, targetTop),
       behavior: prefersReducedMotion() ? "auto" : "smooth",
-    };
-
-    setMenuOpen(false);
+    });
   };
 
-  // pastHero + active（既存のまま）
+  // rAF統合：Hero越え判定 + active検知
   useEffect(() => {
     let raf = 0;
 
@@ -81,7 +98,7 @@ export default function HeaderSp() {
       raf = 0;
 
       const y = window.scrollY;
-      const heroLine = window.innerHeight * 0.72;
+      const heroLine = window.innerHeight * 0.72; // SPは少し深め
       setPastHero(y > heroLine);
 
       const sampleY = Math.min(window.innerHeight * 0.46, 460);
@@ -118,56 +135,75 @@ export default function HeaderSp() {
     };
   }, [sectionIds]);
 
-  // ✅ body lock（useLayoutEffectで“描画前”に固定）
-  useLayoutEffect(() => {
-    if (!menuOpen) return;
-
+  // body lock
+  useEffect(() => {
     const body = document.body;
-    const html = document.documentElement;
+    const originalOverflow = body.style.overflow;
+    const originalPaddingRight = body.style.paddingRight;
 
-    // ✅ ここで window.scrollY を読むのをやめる（0拾いの温床）
-    const scrollY = openScrollYRef.current;
+    if (menuOpen) {
+      const sbw = window.innerWidth - document.documentElement.clientWidth;
 
-    const sbw = window.innerWidth - document.documentElement.clientWidth;
+      body.style.overflow = "hidden";
+      if (sbw > 0) body.style.paddingRight = `${sbw}px`;
 
-    const original = {
-      position: body.style.position,
-      top: body.style.top,
-      width: body.style.width,
-      overflowY: body.style.overflowY,
-      paddingRight: body.style.paddingRight,
-      scrollBehavior: html.style.scrollBehavior,
-    };
+      const timer = window.setTimeout(() => {
+        const firstLink = panelRef.current?.querySelector("a");
+        // 開いた瞬間に “勝手にトップへ飛ぶ” 主因はこれ（focusによるスクロール）
+        focusNoScroll(firstLink);
+      }, 220);
 
-    // ✅ smoothが噛んでると復元が変に見えるので一旦殺す
-    html.style.scrollBehavior = "auto";
+      return () => {
+        window.clearTimeout(timer);
+        body.style.overflow = originalOverflow;
+        body.style.paddingRight = originalPaddingRight;
+      };
+    }
 
-    body.style.position = "fixed";
-    body.style.top = `-${scrollY}px`;
-    body.style.width = "100%";
-    body.style.overflowY = "scroll";
-    if (sbw > 0) body.style.paddingRight = `${sbw}px`;
+    body.style.overflow = originalOverflow;
+    body.style.paddingRight = originalPaddingRight;
 
     return () => {
-      body.style.position = original.position;
-      body.style.top = original.top;
-      body.style.width = original.width;
-      body.style.overflowY = original.overflowY;
-      body.style.paddingRight = original.paddingRight;
-      html.style.scrollBehavior = original.scrollBehavior;
-
-      // ✅ まず“元の位置”へ戻す（保存値で）
-      window.scrollTo({ top: scrollY, behavior: "auto" });
-
-      // ✅ pendingがあれば、その後に狙い位置へ
-      const pending = pendingScrollRef.current;
-      pendingScrollRef.current = null;
-      if (pending) window.scrollTo(pending);
+      body.style.overflow = originalOverflow;
+      body.style.paddingRight = originalPaddingRight;
     };
   }, [menuOpen]);
 
-  // clip origin sync
-  useLayoutEffect(() => {
+  // focus trap + Esc
+  useEffect(() => {
+    if (!menuOpen) return;
+
+    const handleKeyDown = (event) => {
+      if (event.key === "Escape") {
+        closeMenu();
+        return;
+      }
+      if (event.key !== "Tab") return;
+
+      const focusable = panelRef.current?.querySelectorAll(
+        'a[href], button:not([disabled]), [tabindex]:not([tabindex="-1"])'
+      );
+      if (!focusable?.length) return;
+
+      const first = focusable[0];
+      const last = focusable[focusable.length - 1];
+
+      if (event.shiftKey && document.activeElement === first) {
+        event.preventDefault();
+        last.focus();
+      }
+      if (!event.shiftKey && document.activeElement === last) {
+        event.preventDefault();
+        first.focus();
+      }
+    };
+
+    document.addEventListener("keydown", handleKeyDown);
+    return () => document.removeEventListener("keydown", handleKeyDown);
+  }, [menuOpen]);
+
+  // clip origin sync（朱印ボタン中心から展開）
+  useEffect(() => {
     if (!menuOpen) return;
 
     const overlay = overlayRef.current;
@@ -187,6 +223,7 @@ export default function HeaderSp() {
 
   return (
     <>
+      {/* 右下：朱印（Hero中は出さない） */}
       <div
         className={[
           styles.fab,
@@ -205,10 +242,7 @@ export default function HeaderSp() {
           aria-label={menuOpen ? "目次を閉じる" : "目次を開く"}
           aria-expanded={menuOpen}
           aria-controls="global-menu-panel"
-          onClick={() => {
-            if (!menuOpen) openScrollYRef.current = window.scrollY; // ✅ここで確定
-            setMenuOpen((v) => !v);
-          }}
+          onClick={() => setMenuOpen((v) => !v)}
         >
           <span className={styles.stampLabel}>{menuOpen ? "閉じる" : "目次"}</span>
           <span className={styles.stampSeal} aria-hidden="true">
@@ -217,6 +251,7 @@ export default function HeaderSp() {
         </button>
       </div>
 
+      {/* overlay */}
       <div
         ref={overlayRef}
         className={[styles.overlay, menuOpen ? styles.overlayOpen : ""].join(" ")}
@@ -230,6 +265,7 @@ export default function HeaderSp() {
           onClick={closeMenu}
         />
 
+        {/* 朱のにじみ輪（別作品化ポイント） */}
         <div className={styles.bleed} aria-hidden="true" />
 
         <aside
