@@ -717,3 +717,86 @@
     transition: none !important;
   }
 }
+/* ===== panel（写真が“浮き上がる”レイヤー追加） ===== */
+
+/* 既存 .panel に isolation を足す（レイヤー制御を安定させる） */
+.panel{
+  isolation: isolate; /* ★追加 */
+}
+
+/* 写真レイヤー：波の広がりと同時に“浮く” */
+.panel::before{
+  content:"";
+  position:absolute;
+  inset:0;
+  z-index: 0;
+  pointer-events:none;
+
+  /* ★ここが写真。好きな画像に差し替え */
+  background-image: var(--panel-photo, url("/navi1.png"));
+  background-size: cover;
+  background-position: 50% 60%;
+  background-repeat: no-repeat;
+
+  /* “浮き上がり” */
+  opacity: 0;
+  transform: translate3d(0, 18px, 0) scale(1.06);
+  will-change: opacity, transform;
+
+  transition:
+    opacity .98s cubic-bezier(.76, 0, .24, 1),
+    transform .98s cubic-bezier(.76, 0, .24, 1);
+}
+
+/* 可読性の膜：写真の上に固定 */
+.panel::after{
+  content:"";
+  position:absolute;
+  inset:0;
+  z-index: 1;
+  pointer-events:none;
+
+  /* 写真が暴れても文字が死なない“膜” */
+  background:
+    linear-gradient(
+      135deg,
+      rgb(16 16 18 / .78) 0%,
+      rgb(28 20 22 / .72) 46%,
+      rgb(0 0 0 / .22) 100%
+    ),
+    radial-gradient(900px 520px at 22% 16%,
+      rgb(255 250 241 / .10),
+      rgb(255 250 241 / 0) 58%);
+
+  opacity: 0;
+  transition: opacity .64s cubic-bezier(.22, 1, .36, 1);
+}
+
+/* 開いた瞬間：波と同時に写真が“せり上がる” */
+.overlayOpen .panel::before{
+  opacity: .34;              /* ★写真の見せ量（まずはこれ） */
+  transform: translate3d(0, 0, 0) scale(1);
+
+  /* 波の展開に“追従する”感じを作る */
+  transition-delay: .02s;
+}
+
+/* 膜は少し早めに立ち上げて可読性を先に確保 */
+.overlayOpen .panel::after{
+  opacity: 1;
+}
+
+/* 既存レイヤーの順番を明示（写真より上） */
+.panelInk{ z-index: 2; }
+.panelStamp{ z-index: 2; }
+.panelInner{ z-index: 3; }
+
+/* reduce-motion */
+@media (prefers-reduced-motion: reduce){
+  .panel::before,
+  .panel::after{
+    transition: none !important;
+    opacity: 1;
+    transform: none;
+  }
+}

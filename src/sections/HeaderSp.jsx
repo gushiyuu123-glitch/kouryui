@@ -22,7 +22,8 @@ function prefersReducedMotion() {
 
 /**
  * focus() が「要素を画面内に入れよう」としてスクロールを勝手に動かすことがある。
- * preventScroll を使い、効かない環境では “飛んだら戻す” で止める。
+ * preventScroll を使い、効かない環境では rAF を2段重ねて
+ * Safariの非同期スクロールが来た後に位置を戻す。
  */
 function focusNoScroll(el) {
   if (!el) return;
@@ -34,10 +35,16 @@ function focusNoScroll(el) {
     el.focus?.();
   }
 
-  // preventScroll が効かない環境（主にモバイルSafari）対策
-  if (Math.abs(window.scrollY - y) > 2) {
-    window.scrollTo({ top: y, behavior: "auto" });
-  }
+  // preventScroll が効かない環境（主にモバイルSafari）対策。
+  // Safariのfocus起因スクロールは非同期で発火するため、
+  // rAFを2段重ねてスクロール後に位置を戻す。
+  requestAnimationFrame(() => {
+    requestAnimationFrame(() => {
+      if (Math.abs(window.scrollY - y) > 2) {
+        window.scrollTo({ top: y, behavior: "auto" });
+      }
+    });
+  });
 }
 
 export default function HeaderSp() {
@@ -149,7 +156,8 @@ export default function HeaderSp() {
 
       const timer = window.setTimeout(() => {
         const firstLink = panelRef.current?.querySelector("a");
-        // 開いた瞬間に “勝手にトップへ飛ぶ” 主因はこれ（focusによるスクロール）
+        // 開いた瞬間に "勝手にトップへ飛ぶ" 主因はこれ（focusによるスクロール）
+        // → focusNoScroll 内の rAF 2段重ねで打ち消す
         focusNoScroll(firstLink);
       }, 220);
 
