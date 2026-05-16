@@ -19,11 +19,10 @@ function getIdFromHref(href) {
 function prefersReducedMotion() {
   return window.matchMedia?.("(prefers-reduced-motion: reduce)")?.matches;
 }
+function isCoarsePointer() {
+  return window.matchMedia?.("(pointer: coarse)")?.matches ?? false;
+}
 
-/**
- * focus() が「要素を画面内に入れよう」としてスクロールを動かすことがある。
- * preventScroll を使い、効かない環境は rAF 2段で “飛んだら戻す”。
- */
 function focusNoScroll(el) {
   if (!el) return;
   const y = window.scrollY;
@@ -52,13 +51,8 @@ export default function HeaderSp() {
   const panelRef = useRef(null);
   const overlayRef = useRef(null);
 
-  // body固定時の“本当のスクロール位置”
   const lockScrollYRef = useRef(0);
-
-  // 固定中に scrollTo するとズレるので、閉じた後に走らせる
   const pendingScrollRef = useRef(null);
-
-  // 閉じた後に朱印へフォーカスを戻す（body復元後）
   const refocusStampRef = useRef(false);
 
   const sectionIds = useMemo(
@@ -81,10 +75,8 @@ export default function HeaderSp() {
     const target = document.getElementById(id);
     setActiveId(id);
 
-    // hashだけ先に反映（閉じた後にスクロール）
     window.history.pushState(null, "", href);
 
-    // ターゲットが無い場合は close だけ
     if (!target) {
       refocusStampRef.current = true;
       setMenuOpen(false);
@@ -92,8 +84,6 @@ export default function HeaderSp() {
     }
 
     const navOffset = 18;
-
-    // ✅ 固定中は window.scrollY を信用しない
     const baseY = menuOpen ? lockScrollYRef.current : window.scrollY;
     const targetTop = target.getBoundingClientRect().top + baseY - navOffset;
 
@@ -106,15 +96,17 @@ export default function HeaderSp() {
     setMenuOpen(false);
   };
 
-  // ✅ 閉じた後に朱印へ戻す（body復元後）
+  // 閉じた後に朱印へ（SPは勝手スクロールの副作用が出るので coarse はやらない）
   useEffect(() => {
     if (menuOpen) return;
     if (!refocusStampRef.current) return;
     refocusStampRef.current = false;
+
+    if (isCoarsePointer()) return; // ✅ SPは自動focusしない
     requestAnimationFrame(() => focusNoScroll(menuButtonRef.current));
   }, [menuOpen]);
 
-  // rAF統合：Hero越え判定 + active検知
+  // pastHero + active
   useEffect(() => {
     let raf = 0;
 
@@ -159,14 +151,7 @@ export default function HeaderSp() {
     };
   }, [sectionIds]);
 
-  /**
-   * ✅ body lock（iOS対策）
-   * - overflow:hidden は端末によって scrollY が 0 になって「トップ吸い」が起きる
-   * - position:fixed + top:-scrollY で“見た目の位置”を保持する
-   *
-   * さらに「閉じた後に scrollTo を実行」することで、
-   * 固定中の座標系ズレを完全に回避する。
-   */
+  // ✅ body lock（安定版：position fixed）
   useLayoutEffect(() => {
     if (!menuOpen) return;
 
@@ -177,7 +162,6 @@ export default function HeaderSp() {
 
     const sbw = window.innerWidth - document.documentElement.clientWidth;
 
-    // ✅ 復元用：空文字で消さず元値を保存
     const original = {
       position: body.style.position,
       top: body.style.top,
@@ -186,18 +170,15 @@ export default function HeaderSp() {
       paddingRight: body.style.paddingRight,
     };
 
-    // ✅ Lenis 等が居たら止める（存在しないなら何もしない）
-    const lenis = window.lenis;
-    const canLenisStop = !!lenis && typeof lenis.stop === "function";
-    if (canLenisStop) lenis.stop();
-
     body.style.position = "fixed";
     body.style.top = `-${scrollY}px`;
     body.style.width = "100%";
-    body.style.overflowY = "scroll"; // ガタつき防止
+    body.style.overflowY = "scroll";
     if (sbw > 0) body.style.paddingRight = `${sbw}px`;
 
+    // ✅ SPは自動focusを切る（ここが“トップ吸い”の主犯になりやすい）
     const timer = window.setTimeout(() => {
+      if (isCoarsePointer()) return;
       const firstLink = panelRef.current?.querySelector("a");
       focusNoScroll(firstLink);
     }, 220);
@@ -211,19 +192,17 @@ export default function HeaderSp() {
       body.style.overflowY = original.overflowY;
       body.style.paddingRight = original.paddingRight;
 
-      // ✅ 先に“元の位置”へ戻す（見た目を保持）
+      // 元の位置へ戻す
       window.scrollTo({ top: scrollY, behavior: "auto" });
 
-      // ✅ pendingがあれば、その後に狙い位置へ（これでズレない）
+      // pendingがあれば狙い位置へ
       const pending = pendingScrollRef.current;
       pendingScrollRef.current = null;
       if (pending) window.scrollTo(pending);
-
-      if (canLenisStop && typeof lenis.start === "function") lenis.start();
     };
   }, [menuOpen]);
 
-  // focus trap + Esc
+  // focus trap（keyboard用。SPは基本使わないが、事故らないよう統一）
   useEffect(() => {
     if (!menuOpen) return;
 
@@ -256,7 +235,7 @@ export default function HeaderSp() {
     return () => document.removeEventListener("keydown", handleKeyDown);
   }, [menuOpen]);
 
-  // clip origin sync（朱印ボタン中心から展開）
+  // clip origin sync
   useLayoutEffect(() => {
     if (!menuOpen) return;
 
