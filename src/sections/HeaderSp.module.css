@@ -421,8 +421,7 @@
 :global(#flow),
 :global(#qa),
 :global(#access),
-:global(#reserve),
-:global(#top){
+:global(#reserve),{
   scroll-margin-top: 56px;
 }
 
