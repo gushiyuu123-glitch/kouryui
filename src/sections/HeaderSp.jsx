@@ -3,6 +3,10 @@ import styles from "./HeaderSp.module.css";
 
 const SIRUSI = "/sirusi.svg";
 
+/**
+ * ✅ SPだけIDを分離（-sp）
+ * ※ 各SPセクション側も id="plan-sp" みたいに合わせてね
+ */
 const navItems = [
   { jp: "プラン", href: "#plan-sp" },
   { jp: "色と衣装", href: "#costume-sp" },
@@ -54,8 +58,18 @@ export default function HeaderSp() {
     []
   );
 
+  /**
+   * ✅ 追加（トップ吸い応急処置）
+   * メニューを「開く瞬間」の現在地を凍結して、閉じたらそこへ戻す
+   */
+  const lockYRef = useRef(0);      // 開く瞬間のscrollY
+  const lockIdRef = useRef("");    // 開く瞬間のactiveId
+  const didNavigateRef = useRef(false); // 目次リンクで移動した時はワープしない
+
   const closeMenu = () => {
+    didNavigateRef.current = false;
     setMenuOpen(false);
+
     // 閉じたら朱印へ戻す（スクロールは動かさない）
     requestAnimationFrame(() => focusNoScroll(menuButtonRef.current));
   };
@@ -68,6 +82,9 @@ export default function HeaderSp() {
 
     const target = document.getElementById(id);
 
+    // ✅ 目次リンクでの移動は「ワープ復帰」を無効化（目的地を優先）
+    didNavigateRef.current = true;
+
     setMenuOpen(false);
     setActiveId(id);
 
@@ -79,8 +96,11 @@ export default function HeaderSp() {
     // SPはバーが無いので浅めでOK（余白だけ残す）
     const navOffset = 18;
 
+    // ✅ menuOpen中にscrollYが0化しても死なないように「開く瞬間のY」を使えるようにする
+    const baseY = menuOpen ? lockYRef.current : window.scrollY;
+
     const targetTop =
-      target.getBoundingClientRect().top + window.scrollY - navOffset;
+      target.getBoundingClientRect().top + baseY - navOffset;
 
     window.history.pushState(null, "", href);
 
@@ -89,6 +109,49 @@ export default function HeaderSp() {
       behavior: prefersReducedMotion() ? "auto" : "smooth",
     });
   };
+
+  /**
+   * ✅ 追加：トップ吸いしても閉じたら復帰（構造は崩さない）
+   * 条件：
+   * - 目次リンクでの移動ではない
+   * - 閉じた直後に scrollY がほぼ0（=吸われてる）
+   * - 開く前はそこそこ下（=復帰する意味がある）
+   */
+  useEffect(() => {
+    if (menuOpen) return;
+
+    // 目次リンクで移動した場合は復帰ワープしない
+    if (didNavigateRef.current) {
+      didNavigateRef.current = false;
+      return;
+    }
+
+    const wasY = lockYRef.current;
+    if (wasY < 24) return; // もともと上なら何もしない
+
+    // “吸われてる” 判定（閉じた直後にほぼトップ）
+    if (window.scrollY > 2) return;
+
+    const navOffset = 18;
+    const id = lockIdRef.current;
+
+    const el = id ? document.getElementById(id) : null;
+
+    // 基本は「元セクションへ」。取れなければY復帰。
+    const top = el
+      ? el.getBoundingClientRect().top + window.scrollY - navOffset
+      : wasY;
+
+    const t = Math.max(0, Math.round(top));
+
+    // iOS向け：rAF＋短いタイマーで確定
+    requestAnimationFrame(() => {
+      window.scrollTo({ top: t, behavior: "auto" });
+      window.setTimeout(() => {
+        window.scrollTo({ top: t, behavior: "auto" });
+      }, 80);
+    });
+  }, [menuOpen]);
 
   // rAF統合：Hero越え判定 + active検知
   useEffect(() => {
@@ -135,7 +198,7 @@ export default function HeaderSp() {
     };
   }, [sectionIds]);
 
-  // body lock
+  // body lock（いまの安定構造を維持）
   useEffect(() => {
     const body = document.body;
     const originalOverflow = body.style.overflow;
@@ -149,7 +212,8 @@ export default function HeaderSp() {
 
       const timer = window.setTimeout(() => {
         const firstLink = panelRef.current?.querySelector("a");
-        // 開いた瞬間に “勝手にトップへ飛ぶ” 主因はこれ（focusによるスクロール）
+        // 開いた瞬間に “勝手にトップへ飛ぶ” 主因になりがち（focusによるスクロール）
+        // → ただし君の環境では「白化しない安定版」なので、構造維持のため残す
         focusNoScroll(firstLink);
       }, 220);
 
@@ -241,8 +305,16 @@ export default function HeaderSp() {
           type="button"
           aria-label={menuOpen ? "目次を閉じる" : "目次を開く"}
           aria-expanded={menuOpen}
-          aria-controls="global-menu-panel"
-          onClick={() => setMenuOpen((v) => !v)}
+          aria-controls="global-menu-panel-sp"
+          onClick={() => {
+            // ✅ 開く瞬間に「現在地」を凍結（吸われる前に確定）
+            if (!menuOpen) {
+              lockYRef.current = window.scrollY;
+              lockIdRef.current = activeId;
+              didNavigateRef.current = false;
+            }
+            setMenuOpen((v) => !v);
+          }}
         >
           <span className={styles.stampLabel}>{menuOpen ? "閉じる" : "目次"}</span>
           <span className={styles.stampSeal} aria-hidden="true">
@@ -269,7 +341,7 @@ export default function HeaderSp() {
         <div className={styles.bleed} aria-hidden="true" />
 
         <aside
-          id="global-menu-panel"
+          id="global-menu-panel-sp"
           ref={panelRef}
           className={styles.panel}
           role="dialog"
@@ -319,9 +391,9 @@ export default function HeaderSp() {
             <footer className={styles.panelFooter}>
               <p>迷ったまま送って大丈夫です。</p>
               <a
-                href="#reserve"
+                href="#reserve-sp"
                 tabIndex={menuOpen ? 0 : -1}
-                onClick={(event) => scrollToHref(event, "#reserve")}
+                onClick={(event) => scrollToHref(event, "#reserve-sp")}
               >
                 予約する
               </a>
