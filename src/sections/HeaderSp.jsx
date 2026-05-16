@@ -19,22 +19,22 @@ function getIdFromHref(href) {
 function prefersReducedMotion() {
   return window.matchMedia?.("(prefers-reduced-motion: reduce)")?.matches;
 }
+function isCoarsePointer() {
+  return window.matchMedia?.("(pointer: coarse)")?.matches ?? true;
+}
 
 /**
- * focus() が「要素を画面内に入れよう」としてスクロールを勝手に動かすことがある。
- * preventScroll を使い、効かない環境では “飛んだら戻す” で止める。
+ * focus() がスクロールを動かすことがある。
+ * SPでは基本使わない（事故率が上がる）方針。
  */
 function focusNoScroll(el) {
   if (!el) return;
   const y = window.scrollY;
-
   try {
     el.focus({ preventScroll: true });
   } catch {
     el.focus?.();
   }
-
-  // preventScroll が効かない環境（主にモバイルSafari）対策
   if (Math.abs(window.scrollY - y) > 2) {
     window.scrollTo({ top: y, behavior: "auto" });
   }
@@ -49,6 +49,9 @@ export default function HeaderSp() {
   const panelRef = useRef(null);
   const overlayRef = useRef(null);
 
+  // ✅ 閉じた後にスクロール（ロック解除後に実行）
+  const pendingScrollRef = useRef(null);
+
   const sectionIds = useMemo(
     () => navItems.map((i) => getIdFromHref(i.href)).filter(Boolean),
     []
@@ -56,8 +59,11 @@ export default function HeaderSp() {
 
   const closeMenu = () => {
     setMenuOpen(false);
-    // 閉じたら朱印へ戻す（スクロールは動かさない）
-    requestAnimationFrame(() => focusNoScroll(menuButtonRef.current));
+
+    // ✅ SPはフォーカス戻しをやらない（勝手スクロールの種）
+    if (!isCoarsePointer()) {
+      requestAnimationFrame(() => focusNoScroll(menuButtonRef.current));
+    }
   };
 
   const scrollToHref = (event, href) => {
@@ -71,24 +77,30 @@ export default function HeaderSp() {
     setMenuOpen(false);
     setActiveId(id);
 
-    if (!target) {
-      window.history.pushState(null, "", href);
-      return;
-    }
+    window.history.pushState(null, "", href);
 
-    // SPはバーが無いので浅めでOK（余白だけ残す）
+    if (!target) return;
+
     const navOffset = 18;
-
     const targetTop =
       target.getBoundingClientRect().top + window.scrollY - navOffset;
 
-    window.history.pushState(null, "", href);
-
-    window.scrollTo({
+    // ✅ ここで即scrollToしない。閉じた後に実行。
+    pendingScrollRef.current = {
       top: Math.max(0, targetTop),
       behavior: prefersReducedMotion() ? "auto" : "smooth",
-    });
+    };
   };
+
+  // ✅ 「閉じた後」に pending scroll 実行（ロック解除後）
+  useEffect(() => {
+    if (menuOpen) return;
+    const pending = pendingScrollRef.current;
+    if (!pending) return;
+
+    pendingScrollRef.current = null;
+    requestAnimationFrame(() => window.scrollTo(pending));
+  }, [menuOpen]);
 
   // rAF統合：Hero越え判定 + active検知
   useEffect(() => {
@@ -97,8 +109,11 @@ export default function HeaderSp() {
     const compute = () => {
       raf = 0;
 
+      // ✅ menuOpen中は揺れるので更新しない（fabが死ぬの防止）
+      if (menuOpen) return;
+
       const y = window.scrollY;
-      const heroLine = window.innerHeight * 0.72; // SPは少し深め
+      const heroLine = window.innerHeight * 0.72;
       setPastHero(y > heroLine);
 
       const sampleY = Math.min(window.innerHeight * 0.46, 460);
@@ -133,9 +148,9 @@ export default function HeaderSp() {
       window.removeEventListener("scroll", onTick);
       window.removeEventListener("resize", onTick);
     };
-  }, [sectionIds]);
+  }, [sectionIds, menuOpen]);
 
-  // body lock
+  // body lock（君の開く版を維持。ただしSPの自動focusは切る）
   useEffect(() => {
     const body = document.body;
     const originalOverflow = body.style.overflow;
@@ -147,14 +162,10 @@ export default function HeaderSp() {
       body.style.overflow = "hidden";
       if (sbw > 0) body.style.paddingRight = `${sbw}px`;
 
-      const timer = window.setTimeout(() => {
-        const firstLink = panelRef.current?.querySelector("a");
-        // 開いた瞬間に “勝手にトップへ飛ぶ” 主因はこれ（focusによるスクロール）
-        focusNoScroll(firstLink);
-      }, 220);
+      // ✅ SPは開いた直後のfirstLink focusをしない（事故率が上がる）
+      // （PCキーボードだけ欲しいなら !isCoarsePointer() で復活させてOK）
 
       return () => {
-        window.clearTimeout(timer);
         body.style.overflow = originalOverflow;
         body.style.paddingRight = originalPaddingRight;
       };
@@ -169,7 +180,7 @@ export default function HeaderSp() {
     };
   }, [menuOpen]);
 
-  // focus trap + Esc
+  // focus trap + Esc（キーボード用）
   useEffect(() => {
     if (!menuOpen) return;
 
@@ -223,7 +234,6 @@ export default function HeaderSp() {
 
   return (
     <>
-      {/* 右下：朱印（Hero中は出さない） */}
       <div
         className={[
           styles.fab,
@@ -251,7 +261,6 @@ export default function HeaderSp() {
         </button>
       </div>
 
-      {/* overlay */}
       <div
         ref={overlayRef}
         className={[styles.overlay, menuOpen ? styles.overlayOpen : ""].join(" ")}
@@ -265,7 +274,6 @@ export default function HeaderSp() {
           onClick={closeMenu}
         />
 
-        {/* 朱のにじみ輪（別作品化ポイント） */}
         <div className={styles.bleed} aria-hidden="true" />
 
         <aside
