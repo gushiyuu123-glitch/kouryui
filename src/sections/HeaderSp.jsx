@@ -20,6 +20,26 @@ function prefersReducedMotion() {
   return window.matchMedia?.("(prefers-reduced-motion: reduce)")?.matches;
 }
 
+/**
+ * focus() が「要素を画面内に入れよう」としてスクロールを勝手に動かすことがある。
+ * preventScroll を使い、効かない環境では “飛んだら戻す” で止める。
+ */
+function focusNoScroll(el) {
+  if (!el) return;
+  const y = window.scrollY;
+
+  try {
+    el.focus({ preventScroll: true });
+  } catch {
+    el.focus?.();
+  }
+
+  // preventScroll が効かない環境（主にモバイルSafari）対策
+  if (Math.abs(window.scrollY - y) > 2) {
+    window.scrollTo({ top: y, behavior: "auto" });
+  }
+}
+
 export default function HeaderSp() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [pastHero, setPastHero] = useState(false);
@@ -36,7 +56,8 @@ export default function HeaderSp() {
 
   const closeMenu = () => {
     setMenuOpen(false);
-    menuButtonRef.current?.focus?.();
+    // 閉じたら朱印へ戻す（スクロールは動かさない）
+    requestAnimationFrame(() => focusNoScroll(menuButtonRef.current));
   };
 
   const scrollToHref = (event, href) => {
@@ -128,7 +149,8 @@ export default function HeaderSp() {
 
       const timer = window.setTimeout(() => {
         const firstLink = panelRef.current?.querySelector("a");
-        firstLink?.focus?.();
+        // 開いた瞬間に “勝手にトップへ飛ぶ” 主因はこれ（focusによるスクロール）
+        focusNoScroll(firstLink);
       }, 220);
 
       return () => {

@@ -93,6 +93,7 @@ export default function GallerySp() {
         gsap.set(hh, { opacity: 0, scaleX: 0, transformOrigin: "0% 50%" });
       }
 
+      // reduced motion
       if (reduce) {
         panels.forEach((el) => {
           const mask = el.querySelector("[data-mask]");
@@ -116,7 +117,10 @@ export default function GallerySp() {
         return;
       }
 
-      const tl = gsap.timeline({
+      // ============================
+      // header：stageで一回だけ刻印
+      // ============================
+      const headerTl = gsap.timeline({
         defaults: { ease: "power3.out" },
         scrollTrigger: {
           trigger: stage,
@@ -125,42 +129,62 @@ export default function GallerySp() {
         },
       });
 
-      // header “刻印”
       if (hk && ht && hb && hl && hh) {
-        tl.to(hk, { opacity: 1, y: 0, duration: 0.34 }, 0.00);
-        tl.to(
+        headerTl.to(hk, { opacity: 1, y: 0, duration: 0.34 }, 0.00);
+        headerTl.to(
           ht,
           { clipPath: "inset(0% 0% 0% 0%)", y: 0, duration: 0.86 },
           0.06
         );
-        tl.to(hb, { opacity: 1, y: 0, scale: 1, duration: 0.40 }, 0.30);
-        tl.to(hl, { opacity: 1, y: 0, duration: 0.42 }, 0.44);
-        tl.to(
+        headerTl.to(hb, { opacity: 1, y: 0, scale: 1, duration: 0.40 }, 0.30);
+        headerTl.to(hl, { opacity: 1, y: 0, duration: 0.42 }, 0.44);
+        headerTl.to(
           hh,
           { opacity: 1, scaleX: 1, duration: 0.78, ease: "power2.out" },
           0.56
         );
       }
 
-      // panels
-      let t = 0.10;
-      panels.forEach((el) => {
+      // ==========================================
+      // panels：各パネルが見えた瞬間に“像が整う”
+      // ==========================================
+      const panelTls = [];
+
+      panels.forEach((el, idx) => {
         const mask = el.querySelector("[data-mask]");
         const img = el.querySelector("img");
         const cap = el.querySelector("[data-cap]");
         if (!mask || !img || !cap) return;
 
-        tl.to(el, { opacity: 1, y: 0, duration: 0.38 }, t);
-        tl.to(mask, { clipPath: "inset(0% 0% 0% 0%)", duration: 0.88 }, t + 0.02);
-        tl.to(img, { scale: 1.02, y: 0, duration: 1.06 }, t);
-        tl.to(cap, { opacity: 1, y: 0, duration: 0.44 }, t + 0.26);
+        const tl = gsap.timeline({
+          defaults: { ease: "power3.out" },
+          scrollTrigger: {
+            trigger: el,
+            start: "top 82%",
+            once: true,
+          },
+        });
 
-        t += 0.18;
+        // “均し”じゃなく紙面の呼吸として微差だけ残す
+        const lead = 0.02 + idx * 0.02;
+
+        tl.to(el, { opacity: 1, y: 0, duration: 0.38 }, lead);
+        tl.to(mask, { clipPath: "inset(0% 0% 0% 0%)", duration: 0.88 }, lead + 0.02);
+        tl.to(img, { scale: 1.02, y: 0, duration: 1.06 }, lead);
+        tl.to(cap, { opacity: 1, y: 0, duration: 0.44 }, lead + 0.26);
+
+        panelTls.push(tl);
       });
 
+      // cleanup（ctx.revertでも消えるが、ScrollTriggerは明示して品良く）
       return () => {
-        tl.scrollTrigger?.kill();
-        tl.kill();
+        headerTl.scrollTrigger?.kill();
+        headerTl.kill();
+
+        panelTls.forEach((t) => {
+          t.scrollTrigger?.kill();
+          t.kill();
+        });
       };
     }, stage);
 

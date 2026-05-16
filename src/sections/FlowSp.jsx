@@ -1,4 +1,4 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import styles from "./FlowSp.module.css";
 
 const STEPS = [
@@ -63,19 +63,44 @@ export default function FlowSp() {
   const sectionRef = useRef(null);
   const triggerRef = useRef(null);
 
+  // ✅ 画像の“パッ”対策：ロード完了に合わせてフェード
+  const [proofLoaded, setProofLoaded] = useState(() => PROOFS.map(() => false));
+  const markProofLoaded = (idx) => {
+    setProofLoaded((prev) => {
+      if (prev[idx]) return prev;
+      const next = prev.slice();
+      next[idx] = true;
+      return next;
+    });
+  };
+
   useEffect(() => {
     const section = sectionRef.current;
     const trigger = triggerRef.current;
     if (!section || !trigger) return;
 
-    const show = () => section.classList.add(styles.in);
-
     const reduce =
       window.matchMedia?.("(prefers-reduced-motion: reduce)")?.matches;
 
+    let raf1 = 0;
+    let raf2 = 0;
+
+    // ✅ 初期状態を一度“描画させてから”in付与（環境によってパッを防ぐ）
+    const show = () => {
+      if (section.classList.contains(styles.in)) return;
+      raf1 = requestAnimationFrame(() => {
+        raf2 = requestAnimationFrame(() => {
+          section.classList.add(styles.in);
+        });
+      });
+    };
+
     if (reduce || !("IntersectionObserver" in window)) {
-      show();
-      return;
+      section.classList.add(styles.in);
+      return () => {
+        cancelAnimationFrame(raf1);
+        cancelAnimationFrame(raf2);
+      };
     }
 
     const io = new IntersectionObserver(
@@ -88,7 +113,11 @@ export default function FlowSp() {
     );
 
     io.observe(trigger);
-    return () => io.disconnect();
+    return () => {
+      io.disconnect();
+      cancelAnimationFrame(raf1);
+      cancelAnimationFrame(raf2);
+    };
   }, []);
 
   return (
@@ -102,7 +131,10 @@ export default function FlowSp() {
         <div className={styles.rail} aria-hidden="true" />
 
         <header ref={triggerRef} className={styles.head}>
-          <div className={`${styles.kicker} ${styles.reveal}`} style={{ "--d": "0.00s" }}>
+          <div
+            className={`${styles.kicker} ${styles.reveal}`}
+            style={{ "--d": "0.00s" }}
+          >
             FLOW
           </div>
 
@@ -114,13 +146,20 @@ export default function FlowSp() {
             当日の流れ
           </h2>
 
-          <p className={`${styles.lead} ${styles.reveal}`} style={{ "--d": "0.12s" }}>
+          <p
+            className={`${styles.lead} ${styles.reveal}`}
+            style={{ "--d": "0.12s" }}
+          >
             迷いやすい部分だけ先に。
             <br aria-hidden="true" />
             準備は40〜50分。散策OK。返却は基本〜19:00（夜紅は〜21:00）。
           </p>
 
-          <div className={`${styles.facts} ${styles.reveal}`} style={{ "--d": "0.18s" }} aria-label="要点">
+          <div
+            className={`${styles.facts} ${styles.reveal}`}
+            style={{ "--d": "0.18s" }}
+            aria-label="要点"
+          >
             <span>準備 40〜50分</span>
             <i className={styles.dot} aria-hidden="true" />
             <span>散策 OK</span>
@@ -174,7 +213,10 @@ export default function FlowSp() {
         </ol>
 
         <div className={styles.proofs} aria-label="要点の写真">
-          <div className={`${styles.proofsHead} ${styles.reveal}`} style={{ "--d": "0.82s" }}>
+          <div
+            className={`${styles.proofsHead} ${styles.reveal}`}
+            style={{ "--d": "0.82s" }}
+          >
             <span className={styles.proofsEn}>SCENES</span>
             <span className={styles.proofsJp}>要点だけ、写真で。</span>
           </div>
@@ -186,8 +228,18 @@ export default function FlowSp() {
                 className={`${styles.proof} ${styles.reveal}`}
                 style={{ "--d": `${0.88 + i * 0.08}s` }}
               >
-                <div className={styles.proofMedia}>
-                  <img className={styles.proofImg} src={p.img} alt="" loading="lazy" decoding="async" />
+                <div
+                  className={styles.proofMedia}
+                  data-loaded={proofLoaded[i] ? "true" : "false"}
+                >
+                  <img
+                    className={styles.proofImg}
+                    src={p.img}
+                    alt=""
+                    loading="lazy"
+                    decoding="async"
+                    onLoad={() => markProofLoaded(i)}
+                  />
                   <div className={styles.proofOverlay} aria-hidden="true">
                     <span className={styles.proofChap}>{p.chapter}</span>
                     <span className={styles.proofTitle}>{p.title}</span>
