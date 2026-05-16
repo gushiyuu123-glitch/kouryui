@@ -1,8 +1,5 @@
 /* HeaderSp.module.css */
 
-/* =========================
-   FAB / STAMP
-========================= */
 .fab{
   position: fixed;
   right: max(14px, env(safe-area-inset-right));
@@ -36,7 +33,7 @@
   gap: 10px;
 
   height: 54px;
-  padding: 0 14px;
+  padding: 0 14px 0 14px;
 
   border: 1px solid rgb(var(--ink, 26 26 26) / .14);
   background:
@@ -56,7 +53,7 @@
 }
 
 .stampLabel{
-  font-family: var(--font-serif, "Hiragino Mincho ProN", "Yu Mincho", serif);
+  font-family: var(--font-serif);
   font-size: 13px;
   letter-spacing: .22em;
   transform: translateY(-.5px);
@@ -91,8 +88,8 @@
 .stampButton:focus-visible{
   outline: none;
   box-shadow:
-    0 0 0 1px rgb(var(--beni, 176 18 27) / .22),
-    0 0 0 6px rgb(var(--beni, 176 18 27) / .10),
+    0 0 0 1px rgb(var(--beni) / .22),
+    0 0 0 6px rgb(var(--beni) / .10),
     0 22px 56px rgb(0 0 0 / .12),
     inset 0 1px 0 rgb(255 255 255 / .62);
 }
@@ -107,20 +104,15 @@
     inset 0 1px 0 rgb(255 255 255 / .18);
 }
 
-/* =========================
-   OVERLAY (wave / clip)
-========================= */
+/* overlay */
 .overlay{
   position: fixed;
   inset: 0;
   z-index: 1000;
 
-  /* JSが入れる */
   --clip-x: calc(100% - 42px);
   --clip-y: calc(100% - 42px);
-
-  /* % は環境差が出やすいので vmax で確実に覆う */
-  --clip-open: 165vmax;
+  --clip-open: 170%;
 
   visibility: hidden;
   pointer-events: none;
@@ -149,11 +141,10 @@
 .overlayOpen .overlayBackdrop{
   opacity: 1;
   pointer-events: auto;
-  -webkit-backdrop-filter: blur(5px);
   backdrop-filter: blur(5px);
 }
 
-/* 朱のにじみ輪 */
+/* 朱のにじみ輪（差分） */
 .bleed{
   position: absolute;
   inset: 0;
@@ -169,26 +160,23 @@
       rgb(var(--beni, 176 18 27) / .22) 0%,
       rgb(var(--beni, 176 18 27) / .10) 26%,
       rgb(var(--beni, 176 18 27) / 0) 60%);
-  clip-path: circle(0px at var(--clip-x) var(--clip-y));
+  clip-path: circle(0% at var(--clip-x) var(--clip-y));
   transition:
     opacity .62s cubic-bezier(.22, 1, .36, 1),
     clip-path 1.02s cubic-bezier(.66, 0, .20, 1);
 }
 .overlayOpen .bleed{
   opacity: .88;
-  clip-path: circle(calc(var(--clip-open) + 10vmax) at var(--clip-x) var(--clip-y));
+  clip-path: circle(calc(var(--clip-open) + 10%) at var(--clip-x) var(--clip-y));
   transition-delay: .06s;
 }
 
-/* =========================
-   PANEL
-========================= */
+/* panel */
 .panel{
   position: absolute;
   inset: 0;
   overflow: hidden;
 
-  /* 波の舞台（暗い膜） */
   background:
     linear-gradient(
       135deg,
@@ -197,79 +185,20 @@
       rgb(255 250 241 / .12) 100%
     );
 
-  /* 波 */
-  clip-path: circle(0px at var(--clip-x) var(--clip-y));
+  clip-path: circle(0% at var(--clip-x) var(--clip-y));
   transform: translateZ(0);
   will-change: clip-path;
-  transition: clip-path 1.02s cubic-bezier(.66, 0, .20, 1);
 
-  /* 写真レイヤーを安定させる */
-  isolation: isolate;
-  --panel-photo: url("/nav-bg-sp.png");
+  transition: clip-path 1.02s cubic-bezier(.66, 0, .20, 1);
 }
 .overlayOpen .panel{
   clip-path: circle(var(--clip-open) at var(--clip-x) var(--clip-y));
 }
 
-/* 写真レイヤー（浮上） */
-.panel::before{
-  content:"";
-  position:absolute;
-  inset:0;
-  z-index: 0;
-  pointer-events:none;
-
-  background-image: var(--panel-photo);
-  background-size: cover;
-  background-position: 50% 60%;
-  background-repeat: no-repeat;
-
-  opacity: 0;
-  transform: translate3d(0, 18px, 0) scale(1.06);
-  will-change: opacity, transform;
-
-  transition:
-    opacity 1.02s cubic-bezier(.66, 0, .20, 1),
-    transform 1.02s cubic-bezier(.66, 0, .20, 1);
-}
-.overlayOpen .panel::before{
-  opacity: .26;
-  transform: translate3d(0, 0, 0) scale(1);
-  transition-delay: .02s;
-}
-
-/* 可読性の膜 */
-.panel::after{
-  content:"";
-  position:absolute;
-  inset:0;
-  z-index: 1;
-  pointer-events:none;
-
-  background:
-    linear-gradient(
-      135deg,
-      rgb(16 16 18 / .78) 0%,
-      rgb(28 20 22 / .72) 46%,
-      rgb(0 0 0 / .22) 100%
-    ),
-    radial-gradient(720px 420px at 18% 16%,
-      rgb(255 250 241 / .10),
-      rgb(255 250 241 / 0) 58%);
-
-  opacity: 0;
-  transition: opacity .62s cubic-bezier(.22, 1, .36, 1);
-}
-.overlayOpen .panel::after{
-  opacity: 1;
-}
-
-/* 光膜 / 赤味 */
 .panelInk{
   position:absolute;
   inset:0;
   pointer-events:none;
-  z-index: 2;
 
   background:
     radial-gradient(ellipse at 18% 14%,
@@ -285,31 +214,17 @@
     );
 }
 
-/* =========================
-   INNER LAYOUT (header/footer固定, navだけscroll)
-========================= */
 .panelInner{
   position: relative;
-  z-index: 3;
+  z-index: 1;
 
   width: min(520px, calc(100% - 44px));
   margin: 0 auto;
 
-  display: flex;
-  flex-direction: column;
-  box-sizing: border-box;
-
-  /* “今見えてる高さ”に合わせる */
-  height: 100vh;
-  height: 100dvh;
-
   padding:
-    calc(env(safe-area-inset-top) + 72px)
+    calc(env(safe-area-inset-top) + 84px)
     0
-    calc(env(safe-area-inset-bottom) + 18px);
-
-  /* navだけスクロールさせるためここは隠す */
-  overflow: hidden;
+    calc(env(safe-area-inset-bottom) + 26px);
 
   color: rgb(255 250 241 / .94);
 }
@@ -321,14 +236,14 @@
 }
 .panelKicker{
   margin: 0;
-  font-family: var(--font-serif, "Hiragino Mincho ProN", "Yu Mincho", serif);
+  font-family: var(--font-serif);
   font-size: 26px;
   line-height: 1;
   letter-spacing: .14em;
 }
 .panelLead{
   margin: 14px 0 0;
-  font-family: var(--font-sans, system-ui, -apple-system, "Segoe UI", sans-serif);
+  font-family: var(--font-sans);
   font-size: 12px;
   line-height: 1.85;
   letter-spacing: .18em;
@@ -340,30 +255,19 @@
   flex-wrap: wrap;
   gap: 10px 14px;
 
-  font-family: var(--font-sans, system-ui, -apple-system, "Segoe UI", sans-serif);
+  font-family: var(--font-sans);
   font-size: 12px;
   letter-spacing: .14em;
   color: rgb(255 250 241 / .60);
 }
 
-/* nav (scroll zone) */
+/* nav */
 .panelNav{
   margin-top: 22px;
-
-  flex: 1 1 auto;
-  min-height: 0;
-
   display: grid;
   gap: 12px;
-
-  overflow-y: auto;
-  -webkit-overflow-scrolling: touch;
-  overscroll-behavior: contain;
-
-  padding-right: 6px;
 }
 
-/* link animation */
 .panelLink{
   position: relative;
   display: grid;
@@ -377,14 +281,17 @@
 
   opacity: 0;
   transform: translateY(18px);
+  filter: blur(10px);
 }
 .overlayOpen .panelLink{
   opacity: 1;
   transform: translateY(0);
+  filter: blur(0);
 
   transition:
     opacity .78s cubic-bezier(.22, 1, .36, 1) var(--delay),
     transform .78s cubic-bezier(.22, 1, .36, 1) var(--delay),
+    filter .78s cubic-bezier(.22, 1, .36, 1) var(--delay),
     color .45s ease;
 }
 
@@ -406,14 +313,15 @@
 }
 
 .panelIndex{
-  font-family: var(--font-serif, "Hiragino Mincho ProN", "Yu Mincho", serif);
+  font-family: var(--font-serif);
   font-size: 12px;
   letter-spacing: .12em;
   color: rgb(255 250 241 / .34);
   transform: translateY(2px);
 }
+
 .panelMain{
-  font-family: var(--font-serif, "Hiragino Mincho ProN", "Yu Mincho", serif);
+  font-family: var(--font-serif);
   font-weight: 300;
   font-size: 28px;
   line-height: 1.05;
@@ -452,10 +360,9 @@
   );
 }
 
-/* footer (fixed bottom) */
+/* footer */
 .panelFooter{
-  flex: 0 0 auto;
-  margin-top: 16px;
+  margin-top: 22px;
   padding-top: 18px;
   border-top: 1px solid rgb(255 250 241 / .14);
 
@@ -464,18 +371,21 @@
 
   opacity: 0;
   transform: translateY(12px);
+  filter: blur(8px);
 }
 .overlayOpen .panelFooter{
   opacity: 1;
   transform: translateY(0);
+  filter: blur(0);
 
   transition:
     opacity .78s cubic-bezier(.22, 1, .36, 1) .44s,
-    transform .78s cubic-bezier(.22, 1, .36, 1) .44s;
+    transform .78s cubic-bezier(.22, 1, .36, 1) .44s,
+    filter .78s cubic-bezier(.22, 1, .36, 1) .44s;
 }
 .panelFooter p{
   margin: 0;
-  font-family: var(--font-serif, "Hiragino Mincho ProN", "Yu Mincho", serif);
+  font-family: var(--font-serif);
   font-size: 13px;
   letter-spacing: .12em;
   color: rgb(255 250 241 / .46);
@@ -485,7 +395,7 @@
   color: rgb(255 250 241 / .86);
   text-decoration: none;
 
-  font-family: var(--font-sans, system-ui, -apple-system, "Segoe UI", sans-serif);
+  font-family: var(--font-sans);
   font-size: 13px;
   letter-spacing: .16em;
   position: relative;
@@ -516,19 +426,6 @@
   scroll-margin-top: 56px;
 }
 
-/* clip-pathが死ぬ環境のフォールバック（真っ白対策） */
-@supports not (clip-path: circle(10px at 10px 10px)){
-  .panel{
-    clip-path: none;
-    transition: none;
-  }
-  .bleed{
-    clip-path: none;
-    transition: none;
-  }
-}
-
-/* reduced motion */
 @media (prefers-reduced-motion: reduce){
   .fab,
   .stampButton,
@@ -536,15 +433,133 @@
   .bleed,
   .panel,
   .panelLink,
-  .panelFooter,
+  .panelFooter{
+    transition: none !important;
+  }
+}
+/* ===============================
+   FIX: パネル下部が切れる問題
+   - header/footer固定
+   - navだけスクロール
+=============================== */
+
+/* 既存 .panel は overflow:hidden のままでOK（クリップ演出維持） */
+
+.panelInner{
+  /* 追加 */
+  display: flex;
+  flex-direction: column;
+
+  /* iOS含む“今見えてる高さ”に合わせる */
+  height: 100vh;
+  height: 100dvh;
+
+  box-sizing: border-box;
+
+  /* 既存のpaddingを少しだけ詰めてもいい（任意） */
+  padding:
+    calc(env(safe-area-inset-top) + 72px)
+    0
+    calc(env(safe-area-inset-bottom) + 18px);
+
+  /* navだけスクロールさせるため、ここは隠す */
+  overflow: hidden;
+}
+
+/* navをスクロール領域にする */
+.panelNav{
+  flex: 1 1 auto;
+  min-height: 0; /* ← これがないとスクロール死ぬ */
+
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
+
+  /* 右端に少し余白（スクロール時の指が気持ちいい） */
+  padding-right: 6px;
+}
+
+/* footerは最下部に居座る（予約ボタンが切れない） */
+.panelFooter{
+  flex: 0 0 auto;
+  margin-top: 16px; /* 既存22pxが重いなら */
+}
+/* ===== NAV PHOTO (SP) : 波と同時に背景が浮く ===== */
+
+/* 既存 .panel にこれだけ足す（レイヤーの安定化） */
+.panel{
+  isolation: isolate;
+  --panel-photo: url("/nav-bg-sp.png"); /* ★ここを好きな画像に差し替え */
+}
+
+/* 写真レイヤー：最初は闇の中、openで浮上 */
+.panel::before{
+  content:"";
+  position:absolute;
+  inset:0;
+  z-index: 0;
+  pointer-events:none;
+
+  background-image: var(--panel-photo);
+  background-size: cover;
+  background-position: 50% 60%;
+  background-repeat: no-repeat;
+
+  opacity: 0;
+  transform: translate3d(0, 18px, 0) scale(1.06);
+  will-change: opacity, transform;
+
+  /* 波（clip-path）と同じテンポ */
+  transition:
+    opacity 1.02s cubic-bezier(.66, 0, .20, 1),
+    transform 1.02s cubic-bezier(.66, 0, .20, 1);
+}
+
+/* 可読性の膜：写真の上に固定して“文字を守る” */
+.panel::after{
+  content:"";
+  position:absolute;
+  inset:0;
+  z-index: 1;
+  pointer-events:none;
+
+  background:
+    linear-gradient(
+      135deg,
+      rgb(16 16 18 / .78) 0%,
+      rgb(28 20 22 / .72) 46%,
+      rgb(0 0 0 / .22) 100%
+    ),
+    radial-gradient(720px 420px at 18% 16%,
+      rgb(255 250 241 / .10),
+      rgb(255 250 241 / 0) 58%);
+
+  opacity: 0;
+  transition: opacity .62s cubic-bezier(.22, 1, .36, 1);
+}
+
+/* open：波と同時に“写真がせり上がる” */
+.overlayOpen .panel::before{
+  opacity: .26; /* ★写真の見せ量（SPはまず控えめ） */
+  transform: translate3d(0, 0, 0) scale(1);
+  transition-delay: .02s;
+}
+
+/* 膜は少し早めに立ち上げて可読性を先に確保 */
+.overlayOpen .panel::after{
+  opacity: 1;
+}
+
+/* 既存要素を写真より上に */
+.panelInk{ z-index: 2; }
+.panelInner{ z-index: 3; }
+
+/* reduced motion */
+@media (prefers-reduced-motion: reduce){
   .panel::before,
   .panel::after{
     transition: none !important;
-  }
-
-  .panelLink,
-  .panelFooter{
-    opacity: 1 !important;
-    transform: none !important;
+    opacity: 1;
+    transform: none;
   }
 }

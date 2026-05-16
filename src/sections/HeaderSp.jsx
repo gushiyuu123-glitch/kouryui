@@ -19,8 +19,25 @@ function getIdFromHref(href) {
 function prefersReducedMotion() {
   return window.matchMedia?.("(prefers-reduced-motion: reduce)")?.matches;
 }
-function isCoarsePointer() {
-  return window.matchMedia?.("(pointer: coarse)")?.matches ?? false;
+
+/**
+ * focus() が「要素を画面内に入れよう」としてスクロールを勝手に動かすことがある。
+ * preventScroll を使い、効かない環境では “飛んだら戻す” で止める。
+ */
+function focusNoScroll(el) {
+  if (!el) return;
+  const y = window.scrollY;
+
+  try {
+    el.focus({ preventScroll: true });
+  } catch {
+    el.focus?.();
+  }
+
+  // preventScroll が効かない環境（主にモバイルSafari）対策
+  if (Math.abs(window.scrollY - y) > 2) {
+    window.scrollTo({ top: y, behavior: "auto" });
+  }
 }
 
 export default function HeaderSp() {
@@ -32,25 +49,15 @@ export default function HeaderSp() {
   const panelRef = useRef(null);
   const overlayRef = useRef(null);
 
-  // ✅ 開いた瞬間の位置を固定（SPでscrollYが揺れる前に確定）
-  const lockYRef = useRef(0);
-
-  // ✅ 閉じた後に走らせるスクロール（ロック解除後）
-  const pendingScrollRef = useRef(null);
-
   const sectionIds = useMemo(
     () => navItems.map((i) => getIdFromHref(i.href)).filter(Boolean),
     []
   );
 
   const closeMenu = () => {
-    pendingScrollRef.current = null;
     setMenuOpen(false);
-
-    // ✅ SPは閉じた後のfocus戻しをしない（勝手スクロール回避）
-    if (!isCoarsePointer()) {
-      requestAnimationFrame(() => menuButtonRef.current?.focus?.());
-    }
+    // 閉じたら朱印へ戻す（スクロールは動かさない）
+    requestAnimationFrame(() => focusNoScroll(menuButtonRef.current));
   };
 
   const scrollToHref = (event, href) => {
@@ -60,27 +67,27 @@ export default function HeaderSp() {
     event.preventDefault();
 
     const target = document.getElementById(id);
+
+    setMenuOpen(false);
     setActiveId(id);
 
-    // hashは先に反映（閉じた後にスクロール）
-    window.history.pushState(null, "", href);
-
     if (!target) {
-      setMenuOpen(false);
+      window.history.pushState(null, "", href);
       return;
     }
 
+    // SPはバーが無いので浅めでOK（余白だけ残す）
     const navOffset = 18;
-    const baseY = menuOpen ? lockYRef.current : window.scrollY;
-    const targetTop = target.getBoundingClientRect().top + baseY - navOffset;
 
-    // ✅ 予約して閉じる（ロック解除後に実行）
-    pendingScrollRef.current = {
+    const targetTop =
+      target.getBoundingClientRect().top + window.scrollY - navOffset;
+
+    window.history.pushState(null, "", href);
+
+    window.scrollTo({
       top: Math.max(0, targetTop),
       behavior: prefersReducedMotion() ? "auto" : "smooth",
-    };
-
-    setMenuOpen(false);
+    });
   };
 
   // rAF統合：Hero越え判定 + active検知
@@ -90,11 +97,8 @@ export default function HeaderSp() {
     const compute = () => {
       raf = 0;
 
-      // ✅ menuOpen中は揺れるので更新しない（pastHero暴れを止める）
-      if (menuOpen) return;
-
       const y = window.scrollY;
-      const heroLine = window.innerHeight * 0.72;
+      const heroLine = window.innerHeight * 0.72; // SPは少し深め
       setPastHero(y > heroLine);
 
       const sampleY = Math.min(window.innerHeight * 0.46, 460);
@@ -129,66 +133,73 @@ export default function HeaderSp() {
       window.removeEventListener("scroll", onTick);
       window.removeEventListener("resize", onTick);
     };
-  }, [sectionIds, menuOpen]);
+  }, [sectionIds]);
 
-  // ✅ body lock：overflow:hidden ではなく fixed ロック（SP事故減）
+  // body lock
+  useEffect(() => {
+    const body = document.body;
+    const originalOverflow = body.style.overflow;
+    const originalPaddingRight = body.style.paddingRight;
+
+    if (menuOpen) {
+      const sbw = window.innerWidth - document.documentElement.clientWidth;
+
+      body.style.overflow = "hidden";
+      if (sbw > 0) body.style.paddingRight = `${sbw}px`;
+
+      const timer = window.setTimeout(() => {
+        const firstLink = panelRef.current?.querySelector("a");
+        // 開いた瞬間に “勝手にトップへ飛ぶ” 主因はこれ（focusによるスクロール）
+        focusNoScroll(firstLink);
+      }, 220);
+
+      return () => {
+        window.clearTimeout(timer);
+        body.style.overflow = originalOverflow;
+        body.style.paddingRight = originalPaddingRight;
+      };
+    }
+
+    body.style.overflow = originalOverflow;
+    body.style.paddingRight = originalPaddingRight;
+
+    return () => {
+      body.style.overflow = originalOverflow;
+      body.style.paddingRight = originalPaddingRight;
+    };
+  }, [menuOpen]);
+
+  // focus trap + Esc
   useEffect(() => {
     if (!menuOpen) return;
 
-    const body = document.body;
-    const html = document.documentElement;
+    const handleKeyDown = (event) => {
+      if (event.key === "Escape") {
+        closeMenu();
+        return;
+      }
+      if (event.key !== "Tab") return;
 
-    const y = lockYRef.current;
+      const focusable = panelRef.current?.querySelectorAll(
+        'a[href], button:not([disabled]), [tabindex]:not([tabindex="-1"])'
+      );
+      if (!focusable?.length) return;
 
-    const sbw = window.innerWidth - document.documentElement.clientWidth;
+      const first = focusable[0];
+      const last = focusable[focusable.length - 1];
 
-    const original = {
-      position: body.style.position,
-      top: body.style.top,
-      left: body.style.left,
-      right: body.style.right,
-      width: body.style.width,
-      overflowY: body.style.overflowY,
-      paddingRight: body.style.paddingRight,
-      overscrollBehavior: html.style.overscrollBehavior,
-      scrollBehavior: html.style.scrollBehavior,
+      if (event.shiftKey && document.activeElement === first) {
+        event.preventDefault();
+        last.focus();
+      }
+      if (!event.shiftKey && document.activeElement === last) {
+        event.preventDefault();
+        first.focus();
+      }
     };
 
-    // 復帰だけautoにしたいので、ここでも一旦auto
-    html.style.scrollBehavior = "auto";
-
-    body.style.position = "fixed";
-    body.style.top = `-${y}px`;
-    body.style.left = "0";
-    body.style.right = "0";
-    body.style.width = "100%";
-    body.style.overflowY = "scroll";
-    if (sbw > 0) body.style.paddingRight = `${sbw}px`;
-    html.style.overscrollBehavior = "none";
-
-    // ✅ SPは「開いた瞬間のfirstLink focus」を捨てる（トップ吸い主因）
-    // （PC/キーボードだけ必要なら !isCoarsePointer() で分岐してもいい）
-    // const timer = window.setTimeout(() => { ... }, 220);
-
-    return () => {
-      body.style.position = original.position;
-      body.style.top = original.top;
-      body.style.left = original.left;
-      body.style.right = original.right;
-      body.style.width = original.width;
-      body.style.overflowY = original.overflowY;
-      body.style.paddingRight = original.paddingRight;
-      html.style.overscrollBehavior = original.overscrollBehavior;
-      html.style.scrollBehavior = original.scrollBehavior;
-
-      // ✅ まず“元の位置”へ復帰（保存値で）
-      window.scrollTo({ top: y, behavior: "auto" });
-
-      // ✅ pendingがあれば、その後に狙い位置へ（これで座標がズレない）
-      const pending = pendingScrollRef.current;
-      pendingScrollRef.current = null;
-      if (pending) window.scrollTo(pending);
-    };
+    document.addEventListener("keydown", handleKeyDown);
+    return () => document.removeEventListener("keydown", handleKeyDown);
   }, [menuOpen]);
 
   // clip origin sync（朱印ボタン中心から展開）
@@ -231,10 +242,7 @@ export default function HeaderSp() {
           aria-label={menuOpen ? "目次を閉じる" : "目次を開く"}
           aria-expanded={menuOpen}
           aria-controls="global-menu-panel"
-          onClick={() => {
-            if (!menuOpen) lockYRef.current = window.scrollY; // ✅押した瞬間に固定
-            setMenuOpen((v) => !v);
-          }}
+          onClick={() => setMenuOpen((v) => !v)}
         >
           <span className={styles.stampLabel}>{menuOpen ? "閉じる" : "目次"}</span>
           <span className={styles.stampSeal} aria-hidden="true">
@@ -257,6 +265,7 @@ export default function HeaderSp() {
           onClick={closeMenu}
         />
 
+        {/* 朱のにじみ輪（別作品化ポイント） */}
         <div className={styles.bleed} aria-hidden="true" />
 
         <aside
