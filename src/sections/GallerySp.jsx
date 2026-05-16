@@ -192,7 +192,7 @@ export default function GallerySp() {
   }, []);
 
   return (
-    <section id="gallery" className={styles.section} aria-labelledby="galleryTitle">
+    <section id="gallery-sp" className={styles.section} aria-labelledby="galleryTitle">
       <div className={styles.wrap}>
         <div ref={stageRef} className={styles.stage}>
           <header ref={headRef} className={styles.head}>

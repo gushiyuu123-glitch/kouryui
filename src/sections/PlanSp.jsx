@@ -111,7 +111,7 @@ export default function PlanSp() {
   }, []);
 
   return (
-    <section id="plan" className={styles.section} aria-labelledby="planTitleSp">
+    <section id="plan-sp" className={styles.section} aria-labelledby="planTitleSp">
       <div ref={wrapRef} className={styles.wrap}>
         <header className={styles.head}>
           <RevealText as="div" className={styles.kicker} d="0.00s">

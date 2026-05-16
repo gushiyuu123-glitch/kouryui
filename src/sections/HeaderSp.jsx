@@ -4,13 +4,13 @@ import styles from "./HeaderSp.module.css";
 const SIRUSI = "/sirusi.svg";
 
 const navItems = [
-  { jp: "プラン", href: "#plan" },
-  { jp: "色と衣装", href: "#costume" },
-  { jp: "着姿", href: "#gallery" },
-  { jp: "当日の流れ", href: "#flow" },
-  { jp: "ご質問", href: "#qa" },
-  { jp: "場所と行き方", href: "#access" },
-  { jp: "予約", href: "#reserve", cta: true },
+  { jp: "プラン", href: "#plan-sp" },
+  { jp: "色と衣装", href: "#costume-sp" },
+  { jp: "着姿", href: "#gallery-sp" },
+  { jp: "当日の流れ", href: "#flow-sp" },
+  { jp: "ご質問", href: "#qa-sp" },
+  { jp: "場所と行き方", href: "#access-sp" },
+  { jp: "予約", href: "#reserve-sp", cta: true },
 ];
 
 function getIdFromHref(href) {

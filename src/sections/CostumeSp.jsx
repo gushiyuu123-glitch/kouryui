@@ -33,7 +33,7 @@ const INCLUDES = [
 export default function CostumeSp() {
   return (
     <section
-      id="costume"
+      id="costume-sp"
       className={styles.section}
       aria-labelledby="costumeTitle"
     >

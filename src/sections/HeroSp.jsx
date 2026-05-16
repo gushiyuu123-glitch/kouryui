@@ -78,7 +78,7 @@ export default function HeroSp() {
   }, []);
 
   return (
-    <section ref={rootRef} id="top" data-hero className={styles.hero}>
+    <section ref={rootRef} id="top-sp" data-hero className={styles.hero}>
       <img
         data-bg
         className={styles.bg}

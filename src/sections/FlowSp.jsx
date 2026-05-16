@@ -123,7 +123,7 @@ export default function FlowSp() {
   return (
     <section
       ref={sectionRef}
-      id="flow"
+      id="flow-sp"
       className={styles.section}
       aria-labelledby="flowTitle"
     >

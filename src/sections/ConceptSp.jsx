@@ -36,7 +36,7 @@ export default function ConceptSp() {
   return (
     <section
       ref={sectionRef}
-      id="concept"
+      id="concept-sp"
       className={styles.section}
       aria-labelledby="concept-label"
     >

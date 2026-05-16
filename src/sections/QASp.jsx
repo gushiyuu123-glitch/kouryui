@@ -144,7 +144,7 @@ const [open, setOpen] = useState(-1);
   return (
     <section
       ref={sectionRef}
-      id="qa"
+      id="qa-sp"
       className={styles.section}
       aria-labelledby="qa-label"
     >

@@ -16,7 +16,7 @@
 
   /* =========================
      Accent (role-based)
-     - ai   : 案内/リンク/状態
+     - ai    : 案内/リンク/状態
      - kogane: 価値/価格/人気（数字だけ推奨）
   ========================== */
   --ai:     22 49 74;    /* 藍 */
@@ -97,13 +97,23 @@
 
 html, body{ height: 100%; }
 
+/* ✅ ここはhtml側に寄せて一度だけ定義（重複排除） */
 html{
   -webkit-text-size-adjust: 100%;
   text-size-adjust: 100%;
 
+  /* レイアウト揺れ防止（対応ブラウザのみ） */
+  scrollbar-gutter: stable;
+
   /* Firefox */
   scrollbar-width: thin;
   scrollbar-color: var(--sb-thumb) var(--sb-track);
+
+  /* 横は切る（body側の二重定義をなくす） */
+  overflow-x: clip;
+}
+@supports not (overflow: clip){
+  html{ overflow-x: hidden; }
 }
 
 body{
@@ -120,11 +130,6 @@ body{
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-
-  overflow-x: clip;
-}
-@supports not (overflow: clip){
-  body{ overflow-x: hidden; }
 }
 
 #root{
@@ -233,8 +238,4 @@ button:focus-visible{
 .uLinkAi:hover{
   color: rgb(var(--ai) / .90);
   text-decoration-color: rgb(var(--beni) / .28);
-}
-html, body { overflow-x: clip; }
-@supports not (overflow: clip){
-  html, body { overflow-x: hidden; }
 }

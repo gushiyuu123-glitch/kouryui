@@ -87,7 +87,7 @@ export default function ReserveSp() {
   return (
     <section
       ref={sectionRef}
-      id="reserve"
+      id="reserve-sp"
       className={styles.section}
       aria-labelledby="reserve-label"
     >

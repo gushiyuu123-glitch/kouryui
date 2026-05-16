@@ -139,7 +139,7 @@ export default function AccessSp() {
   return (
     <section
       ref={sectionRef}
-      id="access"
+      id="access-sp"
       className={styles.section}
       aria-labelledby="access-label"
     >
